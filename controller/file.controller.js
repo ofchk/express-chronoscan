@@ -3,28 +3,28 @@ const uploadFile = require('../middleware/upload');
 const upload = async (req, res) => {
   try {
     await uploadFile(req, res);
-    console.log('file', req.file);
+    
     if (req.file == undefined) {
       return res.status(400).send({ message: 'Please upload a file!' });
     }
 
     res.status(200).send({
-      message: 'Uploaded the file successfully: ' + req.file.originalname,
+      message: 'Uploaded the file successfully: ', uploaded: req.file
     });
   } catch (err) {
     if (err.code == 'LIMIT_FILE_SIZE') {
       return res.status(500).send({
-        message: 'File size cannot be larger than 2MB!',
+        message: 'File size cannot be larger than 20MB!',
       });
     }
     res.status(500).send({
-      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+      message: `Could not upload the file . ${req.file.originalname} .   ${err}`,
     });
   }
 };
 
 const getListFiles = (req, res) => {
-  const directoryPath = '../uploads/';
+  const directoryPath = __basedir + "/uploads/";
 
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
@@ -48,7 +48,7 @@ const getListFiles = (req, res) => {
 
 const download = (req, res) => {
   const fileName = req.params.name;
-  const directoryPath = '../uploads/';
+  const directoryPath = __basedir + "/uploads/";
 
   res.download(directoryPath + fileName, fileName, (err) => {
     if (err) {
