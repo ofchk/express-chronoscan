@@ -2,6 +2,8 @@ const cors = require('cors');
 const express = require('express');
 const app = express();
 const path = require('path');
+var throttle = require('express-throttle-bandwidth');
+app.use(throttle(100000));
 
 global.__basedir = __dirname;
 
