@@ -72,6 +72,9 @@ app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
     });
 
 app.post('/invoice/upload', upload.array('file', 4), async(req, res) => {
+    console.log("files", req.files)
+    console.log("file",req.file)
+
     var AlfrescoApi = require('alfresco-js-api-node');
     var alfrescoJsApi = new AlfrescoApi({ provider:'ECM', hostEcm: 'http://alfresco.moc.com:8080' });
 
