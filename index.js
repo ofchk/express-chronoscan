@@ -52,7 +52,7 @@ app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
         var fs = require('fs');
         var result = [];
         
-        var fileToUpload = fs.createReadStream(req.file);
+        var fileToUpload = fs.createReadStream(req.file.path);
         await alfrescoJsApi.upload.uploadFile(fileToUpload,'ChronoscanInvoices')
         .then(function (response) {
             const nodeid = response.entry.id;
@@ -70,6 +70,44 @@ app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
         });
         res.json(result);
     });
+
+app.post('/invoice/upload', upload.array('file', 4), async(req, res) => {
+    
+    var alfrescoJsApi = new AlfrescoApi({ provider:'ECM', hostEcm: 'http://alfresco.moc.com:8080' });
+    var alfrescoJsApi = new AlfrescoApi();
+
+    alfrescoJsApi.login('admin', 'admin').then(function (data) {
+      console.log('API called successfully to login into Alfresco Content Services.');
+    }, function (error) {
+      console.error(error);
+    });
+
+      var fs = require('fs');
+      var result = [];
+      for(var i = 0; i < req.files.length; i++){
+        var fileToUpload = fs.createReadStream(req.files[i].path);
+        await alfrescoJsApi.upload.uploadFile(fileToUpload,'ChronoscanInvoices')
+        .then(function (response) {
+            const nodeid = response.entry.id;
+            const filename = response.entry.name;
+            console.log('File Uploaded in the ChronoscanInvoices');
+            //var previewUrl = alfrescoJsApi.content.getDocumentPreviewUrl(response.entry.id);
+            var contentUrl = alfrescoJsApi.content.getContentUrl(response.entry.id);
+            console.log(contentUrl)
+            result.push({'status': 200, 'entryid': response.entry.id, 'filename': filename, 'nodeid': nodeid, 'contentUrl': contentUrl, 'message': 'File - '+filename+' uploaded successfully' });
+        }, function (error) {
+            console.log('errorkey', JSON.parse(error.response.text).error.errorKey)
+            console.log('Error during the upload' + error);
+            //result.push(error);
+            result.push({'status': 409, 'message': JSON.parse(error.response.text).error.errorKey });
+        });
+      }
+      
+      res.json(result)
+
+    });
+
+
 
 
 const initRoutes = require('./routes');
