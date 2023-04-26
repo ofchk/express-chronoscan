@@ -74,7 +74,7 @@ app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
 app.post('/invoice/upload', upload.array('file', 4), async(req, res) => {
     console.log("files", req.files)
     console.log("length",req.files)
-    console.log("body",req.body)
+    console.log("body",req.body.invoice)
 
     var AlfrescoApi = require('alfresco-js-api-node');
     var alfrescoJsApi = new AlfrescoApi({ provider:'ECM', hostEcm: 'http://alfresco.moc.com:8080' });
@@ -89,7 +89,7 @@ app.post('/invoice/upload', upload.array('file', 4), async(req, res) => {
       var result = [];
       for(var i = 0; i < req.files.length; i++){
         var fileToUpload = fs.createReadStream(req.files[i].path);
-        await alfrescoJsApi.upload.uploadFile(fileToUpload,'ChronoscanInvoices')
+        await alfrescoJsApi.upload.uploadFile(fileToUpload,'ChronoscanInvoices/'+req.body.invoice)
         .then(function (response) {
             const nodeid = response.entry.id;
             const filename = response.entry.name;
