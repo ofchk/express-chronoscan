@@ -37,6 +37,30 @@ const upload = multer({ storage: storage })
 
 app.use(cors())
 
+const { authenticate } = require('ldap-authentication')
+
+async function auth() {
+  // auth with admin
+  let options = {
+    ldapOpts: { 
+      url: 'ldap://192.168.5.10:389' 
+    },
+    userDn: 'DC=moc,DC=com',
+    userPassword: 'Tws3857RTY4',
+    userSearchBase: 'OU/=MOG-CORP-GROUP,OU/=MOG_CORP_WITHOUT-USB,OU/=MOG_CORP_Finance',
+    userSearchBase: 'OU/=UMS-OMAN,OU/=UMS_WITHOUT-USB,OU/=UMS_Finance',
+    userSearchBase: 'OU/=ALTAMMAN-RE,OU/=ALTAMMAN_RE_WITHOUT-USB,OU/=Altamman_Finance',
+    usernameAttribute: 'uid',
+    username: 'dmssharing',
+    attributes: ['dn', 'sn', 'cn'],
+  }
+
+  let user = await authenticate(options)
+  console.log(user)
+}
+
+auth()
+
 
 // app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
 //         var AlfrescoApi = require('alfresco-js-api-node');
