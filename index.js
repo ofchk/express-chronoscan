@@ -8,7 +8,7 @@ var throttle = require('express-throttle-bandwidth');
 // var fileupload = require("express-fileupload");
 // app.use(fileupload());
 
-app.use(throttle(100000));
+app.use(throttle(10000));
 
 global.__basedir = __dirname;
 
