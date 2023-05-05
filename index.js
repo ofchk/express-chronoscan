@@ -10,6 +10,13 @@ var throttle = require('express-throttle-bandwidth');
 
 app.use(throttle(100000));
 
+const busboy = require('connect-busboy');
+const fs = require('fs-extra'); 
+
+app.use(busboy({
+    highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
+}));
+
 global.__basedir = __dirname;
 
 var corsOptions = {
@@ -42,24 +49,35 @@ const { authenticate } = require('ldap-authentication')
 async function auth() {
   // auth with admin
   let options = {
-    ldapOpts: { 
-      url: 'ldap://192.168.5.10:389' 
+    ldapOpts: {
+      url: 'ldap://192.168.5.10:389'
     },
-    userDn: 'DC=moc,DC=com',
-    userPassword: 'Tws3857RTY4',
-    userSearchBase: 'OU/=MOG-CORP-GROUP,OU/=MOG_CORP_WITHOUT-USB,OU/=MOG_CORP_Finance',
-    userSearchBase: 'OU/=UMS-OMAN,OU/=UMS_WITHOUT-USB,OU/=UMS_Finance',
-    userSearchBase: 'OU/=ALTAMMAN-RE,OU/=ALTAMMAN_RE_WITHOUT-USB,OU/=Altamman_Finance',
-    usernameAttribute: 'uid',
-    username: 'dmssharing',
-    attributes: ['dn', 'sn', 'cn'],
+    baseDN: 'DC=moc,DC=com',
+  //  userDn: 'dmssharing@moc.com',
+  //  userPassword: 'Tws3857RTY4',
+    userDn: 'dmstest1',
+    userPassword: 'tEsT98564TRW',
+    userSearchBase: 'DC=moc,DC=com',
+    userSearchBase: 'MOG-CORP-GROUP/MOG_CORP_WITHOUT-USB/MOG_CORP_Finance/dmsgroup',
+    groupClass: 'group',
+    username: '*',
+    usernameAttribute: 'sAMAccountName',
+    attributes: [ ],
+    groupSearchBase: 'MOG-CORP-GROUP/MOG_CORP_WITHOUT-USB/MOG_CORP_Finance/dmsgroup',
   }
 
   let user = await authenticate(options)
+//	.then(response =>  response.json())
+	.then(data => {
+		console.log(data)
+  	}).catch(err => {
+	console.log(err)
+  	})
   console.log(user)
+//console.log(user.row)
 }
 
-auth()
+//auth()
 
 
 // app.post('/alfresco/upload', upload.single('file'), async(req, res) => {
@@ -95,9 +113,38 @@ auth()
 //         res.json(result);
 //     });
 
+const uploadPath = path.join(__dirname, 'uploads/'); // Register the upload path
+fs.ensureDir(uploadPath); // Make sure that he upload path exits
+ 
+app.post('/invoice/upload/big', (req, res, next) => {
+    req.pipe(req.busboy); // Pipe it trough busboy
+console.log(req) 
+    req.busboy.on('file', (fieldname, file, filename) => {
+console.log(file)        
+console.log(`Upload of '${filename}' started`);
+ 
+        // Create a write stream of the new file
+        const fstream = fs.createWriteStream(path.join(uploadPath, filename));
+        // Pipe it trough
+        file.pipe(fstream);
+ 
+        // On finish of the upload
+        fstream.on('close', () => {
+            console.log(`Upload of '${filename}' finished`);
+            res.redirect('back');
+        });
+    });
+});
+
+
+
+
 app.post('/invoice/upload', upload.array('file', 4), async(req, res) => {
     const invoice_number = req.body.invoice;
-    var AlfrescoApi = require('alfresco-js-api-node');
+	
+//req.pipe(req.busboy)  
+
+  var AlfrescoApi = require('alfresco-js-api-node');
 
     var alfrescoJsApi = new AlfrescoApi({ provider:'ECM', hostEcm: 'http://alfresco.moc.com:8080' });
 
