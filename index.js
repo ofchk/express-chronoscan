@@ -123,7 +123,7 @@ async function auth() {
 
 app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
   const invoice_number = req.body.invoice;
-  const invoice_number = req.body.invoice_id;
+  const invoice_id = req.body.invoice_id;
   var AlfrescoApi = require('alfresco-js-api-node');
 
   var alfrescoJsApi = new AlfrescoApi({
@@ -190,7 +190,7 @@ app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
         }
       );
   }
-  //res.json(result);
+  res.json({ mesaage: 'File Upload is progressing.' });
 });
 
 const initRoutes = require('./routes');
