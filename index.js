@@ -63,12 +63,10 @@ function save_doc_details(
   })
     .then((res) => res.json())
     .then((res) => {
-console.log('res',res)
+      console.log('res',res)
       console.log(
         `File Added for Invoice: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
-      );
-      response.header('Access-Control-Allow-Origin', '*');
-      response.send(res.data);
+      );      
     })
     .catch((error) => {
       console.log(
