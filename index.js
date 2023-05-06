@@ -80,7 +80,7 @@ function save_doc_details(
     .catch((error) => {
       console.log(
         'There has been a problem with your fetch operation: ',
-        error.message
+        error.graphQLErrors[0].message
       );
     });
 }
