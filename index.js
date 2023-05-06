@@ -182,7 +182,7 @@ app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
         }
       );
   }
-  res.json({ mesaage: 'File Upload is progressing.' });
+  res.json({ 'status': 200, mesaage: 'File Upload is progressing.' });
 });
 
 const initRoutes = require('./routes');
