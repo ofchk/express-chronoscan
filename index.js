@@ -1,3 +1,4 @@
+
 const cors = require('cors');
 const express = require('express');
 const multer = require('multer');
@@ -43,18 +44,8 @@ function save_doc_details(
   filename,
   nodeid
 ) {
-  console.log(
-    JSON.stringify({
-      query: `mutation{ insert_files_one(object: {alfresco_url: "${alfresco_url}", created_by: 1, invoice_id: "${invoice_id}", invoice_number: "${invoice_number}", name: "${filename}", nodeid: "${nodeid}"}) {
-    id
-    invoice_id
-  } update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 2}) {
-    id
-  }}`,
-    })
-  );
 
-  fetch(process.env.HASURA_URL, {
+  fetch("http://192.168.5.130:8080/v1/graphql", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -64,6 +55,7 @@ function save_doc_details(
       query: `mutation{ insert_files_one(object: {alfresco_url: "${alfresco_url}", created_by: 1, invoice_id: "${invoice_id}", invoice_number: "${invoice_number}", name: "${filename}", nodeid: "${nodeid}"}) {
       id
       invoice_id
+      invoice_number
     } update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 2}) {
       id
     }}`,
@@ -71,8 +63,9 @@ function save_doc_details(
   })
     .then((res) => res.json())
     .then((res) => {
+console.log('res',res)
       console.log(
-        `File Added: ${JSON.stringify(res.data.insert_files_one.returning)}`
+        `File Added for Invoice: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
       );
       response.header('Access-Control-Allow-Origin', '*');
       response.send(res.data);
@@ -80,7 +73,7 @@ function save_doc_details(
     .catch((error) => {
       console.log(
         'There has been a problem with your fetch operation: ',
-        error.graphQLErrors[0].message
+        error
       );
     });
 }
@@ -124,6 +117,7 @@ async function auth() {
 app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
   const invoice_number = req.body.invoice;
   const invoice_id = req.body.invoice_id;
+  console.log(req.body)
   var AlfrescoApi = require('alfresco-js-api-node');
 
   var alfrescoJsApi = new AlfrescoApi({
