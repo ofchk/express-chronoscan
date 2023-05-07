@@ -113,76 +113,82 @@ async function auth() {
 //auth()
 
 app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
-  const invoice_number = req.body.invoice;
-  const invoice_id = req.body.invoice_id;
-  console.log(req.body)
-  var AlfrescoApi = require('alfresco-js-api-node');
+  try {      
+      const invoice_number = req.body.invoice;
+      const invoice_id = req.body.invoice_id;
+      console.log(req.body)
+      var AlfrescoApi = require('alfresco-js-api-node');
 
-  var alfrescoJsApi = new AlfrescoApi({
-    provider: 'ECM',
-    hostEcm: 'http://alfresco.moc.com:8080',
-  });
+      var alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: 'http://alfresco.moc.com:8080',
+      });
 
-  alfrescoJsApi.login('admin', 'admin').then(
-    function (data) {
-      console.log(
-        'API called successfully to login into Alfresco Content Services.'
-      );
-    },
-    function (error) {
-      console.error(error);
-      res.json({ status: 400, message: 'Error in Alfresco Connection.' });
-    }
-  );
-
-  var fs = require('fs');
-  var result = [];
-  for (var i = 0; i < req.files.length; i++) {
-    var fileToUpload = fs.createReadStream(req.files[i].path);
-    await alfrescoJsApi.upload
-      .uploadFile(fileToUpload, 'ChronoscanInvoices/' + invoice_number)
-      .then(
-        function (response) {
-          const nodeid = response.entry.id;
-          const filename = response.entry.name;
-          console.log('File Uploaded in to Alfresco');
-          //var previewUrl = alfrescoJsApi.content.getDocumentPreviewUrl(response.entry.id);
-          var contentUrl = alfrescoJsApi.content.getContentUrl(
-            response.entry.id
-          );
-          console.log(contentUrl);
-          result.push({
-            status: 200,
-            invoice_number: invoice_number,
-            entryid: response.entry.id,
-            filename: filename,
-            nodeid: nodeid,
-            contentUrl: contentUrl,
-            message: 'File - ' + filename + ' uploaded successfully',
-          });
-          save_doc_details(
-            contentUrl,
-            invoice_id,
-            invoice_number,
-            filename,
-            nodeid
+      alfrescoJsApi.login('admin', 'admin').then(
+        function (data) {
+          console.log(
+            'API called successfully to login into Alfresco Content Services.'
           );
         },
         function (error) {
-          console.log(
-            'errorkey',
-            JSON.parse(error.response.text).error.errorKey
-          );
-          console.log('Error during the upload' + error);
-          //result.push(error);
-          result.push({
-            status: 409,
-            message: JSON.parse(error.response.text).error.errorKey,
-          });
+          console.error(error);
+          res.json({ status: 400, message: 'Error in Alfresco Connection.' });
         }
       );
-  }
-  res.json({ 'status': 200, mesaage: 'File Upload is progressing.' });
+
+      var fs = require('fs');
+      var result = [];
+      for (var i = 0; i < req.files.length; i++) {
+        var fileToUpload = fs.createReadStream(req.files[i].path);
+        await alfrescoJsApi.upload
+          .uploadFile(fileToUpload, 'ChronoscanInvoices/' + invoice_number)
+          .then(
+            function (response) {
+              const nodeid = response.entry.id;
+              const filename = response.entry.name;
+              console.log('File Uploaded in to Alfresco');
+              //var previewUrl = alfrescoJsApi.content.getDocumentPreviewUrl(response.entry.id);
+              var contentUrl = alfrescoJsApi.content.getContentUrl(
+                response.entry.id
+              );
+              console.log(contentUrl);
+              result.push({
+                status: 200,
+                invoice_number: invoice_number,
+                entryid: response.entry.id,
+                filename: filename,
+                nodeid: nodeid,
+                contentUrl: contentUrl,
+                message: 'File - ' + filename + ' uploaded to Alfresco successfully',
+              });
+              save_doc_details(
+                contentUrl,
+                invoice_id,
+                invoice_number,
+                filename,
+                nodeid
+              );
+            },
+            function (error) {
+              console.log(
+                'errorkey',
+                JSON.parse(error.response.text).error.errorKey
+              );
+              console.log('Error during the upload' + error);
+              //result.push(error);
+              result.push({
+                status: 409,
+                message: JSON.parse(error.response.text).error.errorKey,
+              });
+            }
+          );
+      }
+    res.json({ 'status': 200, mesaage: 'File upload is completed.' });
+  } catch (err) {    
+    res.status(500).send({
+      message: `Error - Could not upload the file with Invoice Number:  ${req.body.invoice} `,
+    });
+  }  
 });
 
 const initRoutes = require('./routes');
