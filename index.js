@@ -65,7 +65,38 @@ function save_doc_details(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `File Added for Invoice: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
+        `Alfresco data addded to hasura: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
+      );      
+    })
+    .catch((error) => {
+      console.log(
+        'There has been a problem with your fetch operation: ',
+        error
+      );
+    });
+}
+
+function save_doc_fail(
+  invoice_id
+) {
+
+  fetch("http://192.168.5.130:8080/v1/graphql", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-hasura-admin-secret': 'chronoaccesskey001',
+    },
+    body: JSON.stringify({
+      query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 3}) {
+      id
+    }}`,
+    }),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log('res',res)
+      console.log(
+        `File Failed details added to hasura: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
       );      
     })
     .catch((error) => {
@@ -185,6 +216,7 @@ app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
       }
     res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
+    save_doc_fail(req.body.invoice_id)
     res.status(500).send({
       message: `Error - Could not upload the file with Invoice Number:  ${req.body.invoice} `,
     });
