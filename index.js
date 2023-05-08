@@ -125,7 +125,7 @@ function save_doc_fail(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `File Failed details added to hasura: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
+        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
       );      
     })
     .catch((error) => {
@@ -176,13 +176,13 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
       const invoice_number = req.body.invoice;
       const invoice_id = req.body.invoice_id;
-      const option = req.body.option;      
+      // const option = req.body.option;      
 
       console.log(req.body);
 
-      if(option != 3){
-        doc_dicer(req.file.path)
-      }
+      // if(option != 3){
+      //   doc_dicer(req.file.path)
+      // }
 
       var AlfrescoApi = require('alfresco-js-api-node');
       var alfrescoJsApi = new AlfrescoApi({
