@@ -40,7 +40,7 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
-function doc_dicer(itemPath)(
+function doc_dicer(itemPath){
   try {            
       console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -64,7 +64,7 @@ function doc_dicer(itemPath)(
       message: `Error - Could not upload the file:  ${err} `,
     });
   }  
-);
+};
 
 function save_doc_details(
   alfresco_url,
