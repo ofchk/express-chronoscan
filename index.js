@@ -48,7 +48,7 @@ app.post('/split', upload.single('file'), async (req, res) => {
       var fullPathFrom = req.file.path;
       console.log('fullPathTo',fullPathFrom)
       dicer.on('split', (data, buffer) => {
-        var fullPathTo = fspath.join(pathTo, data.barcode.id + '.pdf');
+        var fullPathTo = path.join(pathTo, data.barcode.id + '.pdf');
         console.log('fullPathTo',fullPathTo)
         fs.writeFile(fullPathTo, buffer);
       }).split(fullPathFrom, function(err, output) {
