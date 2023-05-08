@@ -20,6 +20,9 @@ app.use(
   })
 );
 
+var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
+var pathTo = `${__dirname}/uploads`;
+
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('pages/index.html'));
 });
@@ -36,6 +39,33 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
+
+app.post('/split', upload.single('file'), async (req, res) => {
+  try {            
+      console.log(req.file) 
+      var pdfDicer = require('pdf-dicer');      
+      var dicer = new pdfDicer();
+      var fullPathFrom = req.file.path;
+      console.log('fullPathTo',fullPathFrom)
+      dicer.on('split', (data, buffer) => {
+        var fullPathTo = fspath.join(pathTo, data.barcode.id + '.pdf');
+        console.log('fullPathTo',fullPathTo)
+        fs.writeFile(fullPathTo, buffer);
+      }).split(fullPathFrom, function(err, output) {
+            if (err){
+              console.log(`Something went wrong: ${err}`);
+              console.log(err);
+              console.log(output);
+            } 
+      });
+    res.json({ 'status': 200, mesaage: 'File upload is completed.' });
+  } catch (err) {        
+    res.status(500).send({
+      message: `Error - Could not upload the file:  ${err} `,
+    });
+  }  
+
+});
 
 function save_doc_details(
   alfresco_url,
