@@ -40,12 +40,12 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
-app.post('/split', upload.single('file'), async (req, res) => {
+function doc_dicer(itemPath)(
   try {            
-      console.log(req.file) 
+      console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
       var dicer = new pdfDicer();
-      var fullPathFrom = req.file.path;
+      var fullPathFrom = itemPath;
       console.log('fullPathTo',fullPathFrom)
       dicer.on('split', (data, buffer) => {
         var fullPathTo = path.join(pathTo, data.barcode.id + '.pdf');
@@ -64,8 +64,7 @@ app.post('/split', upload.single('file'), async (req, res) => {
       message: `Error - Could not upload the file:  ${err} `,
     });
   }  
-
-});
+);
 
 function save_doc_details(
   alfresco_url,
@@ -173,13 +172,19 @@ async function auth() {
 
 //auth()
 
-app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
+app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
       const invoice_number = req.body.invoice;
       const invoice_id = req.body.invoice_id;
-      console.log(req.body)
-      var AlfrescoApi = require('alfresco-js-api-node');
+      const option = req.body.option;      
 
+      console.log(req.body);
+
+      if(option != 3){
+        doc_dicer(req.file.path)
+      }
+
+      var AlfrescoApi = require('alfresco-js-api-node');
       var alfrescoJsApi = new AlfrescoApi({
         provider: 'ECM',
         hostEcm: 'http://alfresco.moc.com:8080',
@@ -199,8 +204,7 @@ app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
 
       var fs = require('fs');
       var result = [];
-      for (var i = 0; i < req.files.length; i++) {
-        var fileToUpload = fs.createReadStream(req.files[i].path);
+        var fileToUpload = fs.createReadStream(req.file.path);
         await alfrescoJsApi.upload
           .uploadFile(fileToUpload, 'ChronoscanInvoices/' + invoice_number)
           .then(
@@ -243,7 +247,6 @@ app.post('/invoice/upload', upload.array('file', 4), async (req, res) => {
               });
             }
           );
-      }
     res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
     save_doc_fail(req.body.invoice_id)
