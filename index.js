@@ -194,12 +194,14 @@ app.post('/user/login', async (req, res) => {
         //  .then(response =>  response.json())
         .then((data) => {
           console.log(data);
+          res.json({ 'status': 200, name: data.name, email: data.userPrincipalName, mesaage: 'Login Successfully' });
         })
         .catch((err) => {
           console.log(err);
+          res.json({ mesaage: 'LDAP Auth Error' });
         });
 
-    res.json({ 'status': 200, name: data.name, email: data.userPrincipalName, mesaage: 'Login Successfully' });
+    
   } catch (err) {    
     console.log(err)
     res.status(500).send({
