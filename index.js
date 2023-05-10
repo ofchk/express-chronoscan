@@ -4,7 +4,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 var throttle = require('express-throttle-bandwidth');
-const busboy = require('connect-busboy');
+
 const fs = require('fs-extra');
 global.__basedir = __dirname;
 
@@ -14,11 +14,10 @@ app.use(cors());
 app.use(express.static('static'));
 app.use(throttle(100000));
 
-app.use(
-  busboy({
-    highWaterMark: 2 * 1024 * 1024, // Set 2MiB buffer
-  })
-);
+const db = require("./models");
+const Role = db.role;
+
+db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
 var pathTo = `${__dirname}/uploads`;
