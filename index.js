@@ -165,7 +165,44 @@ async function auth() {
   //console.log(user.row)
 }
 
-auth()
+//auth()
+
+app.post('/user/login', async (req, res) => {
+  try {      
+      const email = req.body.email;
+      const password = req.body.password;
+
+      let options = {
+        ldapOpts: {
+          url: 'ldap://192.168.5.10:389',
+        },
+        baseDN: 'DC=moc,DC=com',    
+        //userDn: 'dmssharing@moc.com',
+        //userPassword: 'Tws3857RTY4',
+        userDn: email,
+        userPassword: password,
+        userSearchBase: 'DC=moc,DC=com',
+        username: email,
+        usernameAttribute: 'userPrincipalName',
+        attributed: ['dn','sAMAccountName']
+      };
+
+      let user = await authenticate(options)
+        //  .then(response =>  response.json())
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+    res.json({ 'status': 200, name: data.name, email: data.userPrincipalName, mesaage: 'Login Successfully' });
+  } catch (err) {    
+    res.status(500).send({
+      message: `Error - Login Failed. `,
+    });
+  }  
+});
 
 app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
