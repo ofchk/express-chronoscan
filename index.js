@@ -5,6 +5,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 var throttle = require('express-throttle-bandwidth');
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const fs = require('fs-extra');
 global.__basedir = __dirname;
@@ -169,9 +171,9 @@ async function auth() {
 
 app.post('/user/login', async (req, res) => {
   try {      
-    console.log(req.data)
-      const email = req.data.email;
-      const password = req.data.password;
+    console.log(req.body)
+      const email = req.body.email;
+      const password = req.body.password;
 
       let options = {
         ldapOpts: {
@@ -292,7 +294,6 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
 const initRoutes = require('./routes');
 
-app.use(express.urlencoded({ extended: true }));
 initRoutes(app);
 require('./routes/auth.routes')(app);
 // require('./routes/user.routes')(app);
