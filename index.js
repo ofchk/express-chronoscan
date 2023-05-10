@@ -1,4 +1,5 @@
 
+
 const cors = require('cors');
 const express = require('express');
 const multer = require('multer');
@@ -141,20 +142,15 @@ async function auth() {
     ldapOpts: {
       url: 'ldap://192.168.5.10:389',
     },
-    baseDN: 'DC=moc,DC=com',
-    //  userDn: 'dmssharing@moc.com',
-    //  userPassword: 'Tws3857RTY4',
-    userDn: 'dmstest1',
+    baseDN: 'DC=moc,DC=com',    
+    //userDn: 'dmssharing@moc.com',
+    //userPassword: 'Tws3857RTY4',
+    userDn: 'dmstest1@moc.com',
     userPassword: 'tEsT98564TRW',
     userSearchBase: 'DC=moc,DC=com',
-    userSearchBase:
-      'MOG-CORP-GROUP/MOG_CORP_WITHOUT-USB/MOG_CORP_Finance/dmsgroup',
-    groupClass: 'group',
-    username: '*',
-    usernameAttribute: 'sAMAccountName',
-    attributes: [],
-    groupSearchBase:
-      'MOG-CORP-GROUP/MOG_CORP_WITHOUT-USB/MOG_CORP_Finance/dmsgroup',
+    username: 'dmstest1@moc.com',
+    usernameAttribute: 'userPrincipalName',
+    attributed: ['dn','sAMAccountName']
   };
 
   let user = await authenticate(options)
@@ -165,11 +161,11 @@ async function auth() {
     .catch((err) => {
       console.log(err);
     });
-  console.log(user);
+  //console.log(user);
   //console.log(user.row)
 }
 
-//auth()
+auth()
 
 app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
