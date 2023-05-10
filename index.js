@@ -169,9 +169,9 @@ async function auth() {
 
 app.post('/user/login', async (req, res) => {
   try {      
-    console.log(req)
-      const email = req.body.email;
-      const password = req.body.password;
+    console.log(req.data)
+      const email = req.data.email;
+      const password = req.data.password;
 
       let options = {
         ldapOpts: {
