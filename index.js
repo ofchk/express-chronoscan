@@ -5,8 +5,6 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 var throttle = require('express-throttle-bandwidth');
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 const fs = require('fs-extra');
 global.__basedir = __dirname;
@@ -16,6 +14,8 @@ const app = express();
 app.use(cors());
 app.use(express.static('static'));
 app.use(throttle(100000));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 const db = require("./models");
 const Role = db.role;
