@@ -169,6 +169,7 @@ async function auth() {
 
 app.post('/user/login', async (req, res) => {
   try {      
+    console.log(req)
       const email = req.body.email;
       const password = req.body.password;
 
@@ -198,6 +199,7 @@ app.post('/user/login', async (req, res) => {
 
     res.json({ 'status': 200, name: data.name, email: data.userPrincipalName, mesaage: 'Login Successfully' });
   } catch (err) {    
+    console.log(err)
     res.status(500).send({
       message: `Error - Login Failed. `,
     });
