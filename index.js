@@ -244,7 +244,8 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       var result = [];
         var fileToUpload = fs.createReadStream(req.file.path);
         await alfrescoJsApi.upload
-          .uploadFile(fileToUpload, 'ChronoscanInvoices/' + invoice_number)
+          .uploadFile(fileToUpload, '/Sites/AccountsPayable/documentLibrary/' + invoice_number)
+
           .then(
             function (response) {
               const nodeid = response.entry.id;
