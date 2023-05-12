@@ -6,6 +6,10 @@ const multer = require('multer');
 const path = require('path');
 var throttle = require('express-throttle-bandwidth');
 
+const oracledb = require('oracledb');
+
+const dbConfig = require('./dbconfig.js');
+
 const fs = require('fs-extra');
 global.__basedir = __dirname;
 
@@ -41,6 +45,32 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
+
+async function run() {
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+
+    connection = await oracledb.getConnection(dbConfig);
+
+    console.log(connection)
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+run();
 
 function doc_dicer(itemPath){
   try {            
