@@ -92,13 +92,7 @@ module.exports = {
 
   // For information on connection strings see:
   // https://node-oracledb.readthedocs.io/en/latest/user_guide/connection_handling.html#connectionstrings
-  connectString : process.env.NODE_ORACLEDB_CONNECTIONSTRING || " (DESCRIPTION=
-                (ADDRESS=(PROTOCOL=tcp)(HOST=uatdb.moc.com)(PORT=1531))
-            (CONNECT_DATA=
-                (SERVICE_NAME=ERPPROD)
-                (INSTANCE_NAME=ERPPROD)
-            )
-        )",
+  connectString : " (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=uatdb.moc.com)(PORT=1531))(CONNECT_DATA=(SERVICE_NAME=ERPPROD)(INSTANCE_NAME=ERPPROD))) ",
 
   // Setting externalAuth is optional.  It defaults to false.  See:
   // https://node-oracledb.readthedocs.io/en/latest/user_guide/connection_handling.html#extauth
