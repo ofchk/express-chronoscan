@@ -53,7 +53,7 @@ async function run() {
 
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
-    sql = `INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM) VALUES ("ABC")`;    
+    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
     result = await connection.executeMany(sql);
     console.log("Number of rows inserted:", result.rowsAffected);
 
