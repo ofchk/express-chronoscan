@@ -47,7 +47,7 @@ const upload = multer({ storage: storage });
 const { authenticate } = require('ldap-authentication');
 
 async function run() {
-  let connection, sql;
+  let connection;
 
   try {
 
@@ -56,7 +56,7 @@ async function run() {
     console.log("connection");
     sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
     result = await connection.execute(sql);
-    console.log("Number of rows inserted:");
+    console.log("Number of rows inserted:", result);
 
   } catch (err) {
     console.error(err);
