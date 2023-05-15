@@ -54,9 +54,30 @@ async function run() {
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
-    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
-    result = await connection.execute(sql);
-    console.log("Number of rows inserted:", result);
+//    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
+//    result = await connection.execute(sql);
+//    console.log("Number of rows inserted:", result);
+
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES (:1)`;
+
+    binds = [
+      ["sample" ]
+    ];
+
+    options = {
+      autoCommit: true,
+      // batchErrors: true,  // continue processing even if there are data errors
+      bindDefs: [
+        { type: oracledb.STRING, maxSize: 20 }
+      ]
+    };
+
+    result = await connection.executeMany(sql, binds, options);
+ console.log("Number of rows inserted:", result);
+
+
+result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
+console.log("Fetch: ", result2.rows)
 
   } catch (err) {
     console.error(err);
