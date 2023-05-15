@@ -52,10 +52,10 @@ async function run() {
   try {
 
     let sql, binds, options, result;
-
     connection = await oracledb.getConnection(dbConfig);
-
-    console.log(connection)
+    sql = `INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM) VALUES ("ABC")`;    
+    result = await connection.executeMany(sql);
+    console.log("Number of rows inserted:", result.rowsAffected);
 
   } catch (err) {
     console.error(err);
@@ -70,7 +70,7 @@ async function run() {
   }
 }
 
-run();
+//run();
 
 function doc_dicer(itemPath){
   try {            
