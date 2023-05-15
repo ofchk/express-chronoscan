@@ -47,15 +47,16 @@ const upload = multer({ storage: storage });
 const { authenticate } = require('ldap-authentication');
 
 async function run() {
-  let connection;
+  let connection, sql;
 
   try {
 
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
     sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
-    result = await connection.executeMany(sql);
-    console.log("Number of rows inserted:", result.rowsAffected);
+    result = await connection.execute(sql);
+    console.log("Number of rows inserted:");
 
   } catch (err) {
     console.error(err);
@@ -70,7 +71,7 @@ async function run() {
   }
 }
 
-//run();
+run();
 
 function doc_dicer(itemPath){
   try {            
