@@ -92,7 +92,7 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
 //    console.log("Number of rows inserted:", result);
 
    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE, OPERATING_UNIT, ENTERED_AMOUNT) VALUES (:1,:2,:3,:4,:5,:6,:7)`;
-
+   
 
     binds = [
       [ invoice_number, vendor_name, site_id, currency, gl_date, entity_name, amount ]
@@ -111,7 +111,7 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
         { type: oracledb.NUMBER }
       ]
     };
-
+console.log(sql)
 //{ type: oracledb.NUMBER },
 
     result = await connection.executeMany(sql, binds, options);
