@@ -79,7 +79,7 @@ function save_staging(
     });
 }
 
-async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount, contentUrl) {
+async function connect_oracle_staging(invoice_number) {
   let connection;
 
   try {
@@ -126,6 +126,7 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
     }
   }
 }
+connect_oracle_staging("qwertyuiooplkj67888")
 
 function doc_dicer(itemPath){
   try {            
