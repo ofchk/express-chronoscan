@@ -94,11 +94,11 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE) VALUES (:1,:2,:3,:4,:5,:6,:7)`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8)`;
 
 
     binds = [
-      [ invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date ]
+      [ invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date ]
     ];
 
     options = {
@@ -111,6 +111,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
         { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.STRING, maxSize: 200 }
       ]
     };
@@ -118,7 +119,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 //{ type: oracledb.NUMBER },
 
     result = await connection.executeMany(sql, binds, options);
-    console.log("Number of rows inserted:", result);
+    console.log("Number of rows inserted:", result.rows[0]);
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
@@ -359,7 +360,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
                 response.entry.id
               );
               console.log(contentUrl);
-              console.log(invoice_number, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl);
+              console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               const oracle = connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date)
 
 
