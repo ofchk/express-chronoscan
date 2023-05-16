@@ -81,7 +81,7 @@ function save_staging(
 
 
 
-async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, contentUrl, gl_date) {
+async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date) {
 
   let connection;
 
@@ -94,24 +94,18 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE) VALUES (:1,:2,:3,:4,:5,:6,DATE :7,DATE :7)`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (GL_DATE) VALUES (DATE :1)`;
 
 
     binds = [
-      [ invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date ]
+      [ gl_date ]
     ];
 
     options = {
       autoCommit: true,
       // batchErrors: true,  // continue processing even if there are data errors
       bindDefs: [
-        { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.NUMBER },
-        { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.NUMBER },
-        { type: oracledb.DATE },
+        { type: oracledb.DATE }
       ]
     };
 
