@@ -102,14 +102,14 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
       autoCommit: true,
       // batchErrors: true,  // continue processing even if there are data errors
       bindDefs: [
-        { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING, maxSize: 200 },
+        { type: oracledb.VARCHAR, maxSize: 200 },
+        { type: oracledb.VARCHAR, maxSize: 200 },
         { type: oracledb.NUMBER },
-        { type: oracledb.STRING, maxSize: 200 },
+        { type: oracledb.VARCHAR, maxSize: 200 },
         { type: oracledb.DATE},
-        { type: oracledb.STRING, maxSize: 200 },
+        { type: oracledb.VARCHAR, maxSize: 200 },
         { type: oracledb.NUMBER },
-        { type: oracledb.STRING, maxSize: 300 }
+        { type: oracledb.VARCHAR, maxSize: 300 }
       ]
     };
 
