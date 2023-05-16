@@ -106,7 +106,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
       // batchErrors: true,  // continue processing even if there are data errors
       bindDefs: [
         { type: oracledb.STRING, maxSize: 200 },
-        { type: oracledb.STRING }
+        { type: oracledb.STRING, maxSize: 200  }
       ]
     };
 
