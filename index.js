@@ -46,7 +46,40 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
-async function run() {
+function save_staging(
+  invoice_id, staging_id
+) {
+
+  fetch("http://192.168.5.130:8080/v1/graphql", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-hasura-admin-secret': 'chronoaccesskey001',
+    },
+    body: JSON.stringify({
+      query: `mutation{ insert_staging_one(object: {invoice_id: "${invoice_id}", staging_document_identifier: "${staging_id}"}) {
+        id
+        invoice_id
+        staging_document_identifier
+      }}`,
+    }),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log('res',res)
+      console.log(
+        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+      );      
+    })
+    .catch((error) => {
+      console.log(
+        'There has been a problem with your fetch operation: ',
+        error
+      );
+    });
+}
+
+async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount) {
   let connection;
 
   try {
@@ -58,10 +91,10 @@ async function run() {
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES (:1)`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE) VALUES (:1)`;
 
     binds = [
-      ["sample" ]
+      [ invoice_number, invoice_id, vendor_name, site_id, currency, gl_date ]
     ];
 
     options = {
@@ -73,11 +106,10 @@ async function run() {
     };
 
     result = await connection.executeMany(sql, binds, options);
- console.log("Number of rows inserted:", result);
+    console.log("Number of rows inserted:", result);
 
-
-result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
-console.log("Fetch: ", result2.rows)
+// result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
+// console.log("Fetch: ", result2.rows)
 
   } catch (err) {
     console.error(err);
@@ -91,8 +123,6 @@ console.log("Fetch: ", result2.rows)
     }
   }
 }
-
-run();
 
 function doc_dicer(itemPath){
   try {            
@@ -266,6 +296,12 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
       const invoice_number = req.body.invoice;
       const invoice_id = req.body.invoice_id;
+      const amount = req.body.amount;
+      const vendor_name = req.body.vendor_name;
+      const entity_name = req.body.entity_name;
+      const currency = req.body.currency;
+      const site_code = req.body.site_code;
+      const gl_date = req.body.gl_date;
       // const option = req.body.option;      
 
       console.log(req.body);
@@ -302,6 +338,10 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
             function (response) {
               const nodeid = response.entry.id;
               const filename = response.entry.name;
+
+
+              connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount)
+
               console.log('File Uploaded in to Alfresco');
               //var previewUrl = alfrescoJsApi.content.getDocumentPreviewUrl(response.entry.id);
               var contentUrl = alfrescoJsApi.content.getContentUrl(
