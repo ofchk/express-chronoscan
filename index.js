@@ -98,7 +98,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 
 
     binds = [
-      [ gl_date ]
+      [ new Date() ]
     ];
 
     options = {
