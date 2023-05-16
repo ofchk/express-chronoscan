@@ -79,7 +79,7 @@ function save_staging(
     });
 }
 
-async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount) {
+async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount, contentUrl) {
   let connection;
 
   try {
@@ -91,20 +91,29 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE) VALUES (:1)`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE, OPERATING_UNIT, ENTERED_AMOUNT, ATTRIBUTE9) VALUES (:1)`;
 
 
     binds = [
-      [ invoice_number, vendor_name, site_id, currency, gl_date ]
+      [ invoice_number, vendor_name, site_id, currency, gl_date, entity_name, amount, contentUrl ]
     ];
 
     options = {
       autoCommit: true,
       // batchErrors: true,  // continue processing even if there are data errors
       bindDefs: [
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.DATE},
+        { type: oracledb.STRING, maxSize: 20 },
+        { type: oracledb.NUMBER },
         { type: oracledb.STRING, maxSize: 20 }
       ]
     };
+
+//{ type: oracledb.NUMBER },
 
     result = await connection.executeMany(sql, binds, options);
     console.log("Number of rows inserted:", result);
@@ -297,12 +306,12 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
       const invoice_number = req.body.invoice;
       const invoice_id = req.body.invoice_id;
-      const amount = req.body.amount;
+      const amount = parseInt(req.body.amount);
       const vendor_name = req.body.vendor_name;
       const entity_name = req.body.entity_name;
       const currency = req.body.currency;
-      const site_code = req.body.site_id;
-      const gl_date = req.body.gl_date;
+      const site_code = parseInt(req.body.site_id);
+      const gl_date = new Date(req.body.gl_date);
       // const option = req.body.option;      
 
       console.log(req.body);
@@ -338,17 +347,18 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
           .then(
             function (response) {
               const nodeid = response.entry.id;
-              const filename = response.entry.name;
-
-
-              connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_id, currency, gl_date, entity_name, amount)
-
+              const filename = response.entry.name;              
               console.log('File Uploaded in to Alfresco');
               //var previewUrl = alfrescoJsApi.content.getDocumentPreviewUrl(response.entry.id);
               var contentUrl = alfrescoJsApi.content.getContentUrl(
                 response.entry.id
               );
               console.log(contentUrl);
+              console.log(invoice_number, invoice_id, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl);
+              const oracle = connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl)
+              
+              console.log('oracle',oracle);
+
               result.push({
                 status: 200,
                 invoice_number: invoice_number,
