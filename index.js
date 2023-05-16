@@ -109,7 +109,7 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
         { type: oracledb.DATE},
         { type: oracledb.STRING, maxSize: 20 },
         { type: oracledb.NUMBER },
-        { type: oracledb.STRING, maxSize: 20 }
+        { type: oracledb.STRING, maxSize: 300 }
       ]
     };
 
