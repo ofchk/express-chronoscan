@@ -81,7 +81,7 @@ function save_staging(
 
 
 
-async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, contentUrl) {
+async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, contentUrl, gl_date) {
 
   let connection;
 
@@ -94,11 +94,11 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7)`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, ATTRIBUTE9, GL_DATE, INVOICE_DATE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:8)`;
 
 
     binds = [
-      [ invoice_number, vendor_name, site_id, currency, entity_name, amount, contentUrl ]
+      [ invoice_number, vendor_name, site_id, currency, entity_name, amount, contentUrl, gl_date ]
     ];
 
     options = {
@@ -111,6 +111,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
         { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.NUMBER },
+        { type: oracledb.STRING, maxSize: 200 },
         { type: oracledb.STRING, maxSize: 300 }
       ]
     };
@@ -136,7 +137,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
   }
 }
 
-connect_oracle_staging("StagingSample444" ,"Al NahlaSolutions LLC 98765", 106, "OMR","Muscat Overseas Engineering LLC", 1357, "http://alfresco.moc.com:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/c18aee25-4b3b-4e19-844f-458d158ea24c/content?attachment=false&alf_ticket=TICKET_2e1c58da2669bbe5f87a79492c259afaca3bdde8")
+connect_oracle_staging("StagingSample444" ,"Al NahlaSolutions LLC 98765", 106, "OMR","Muscat Overseas Engineering LLC", 1357, "http://alfresco.moc.com:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/c18aee25-4b3b-4e19-844f-458d158ea24c/content?attachment=false&alf_ticket=TICKET_2e1c58da2669bbe5f87a79492c259afaca3bdde8", "2023-05-10")
 
 
 function doc_dicer(itemPath){
@@ -316,7 +317,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const entity_name = req.body.entity_name;
       const currency = req.body.currency;
       const site_code = parseInt(req.body.site_id);
-      const gl_date = new Date(req.body.gl_date);
+      const gl_date = req.body.gl_date;
       // const option = req.body.option;      
 
       console.log(req.body);
@@ -359,7 +360,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
                 response.entry.id
               );
               console.log(contentUrl);
-              console.log(invoice_number, invoice_id, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl);
+              console.log(invoice_number, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl);
               const oracle = connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl)
               
               console.log('oracle',oracle);
