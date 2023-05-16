@@ -91,25 +91,18 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE, OPERATING_UNIT, ENTERED_AMOUNT, ATTRIBUTE9) VALUES (:1, :2, :3, :4, :5, :6, :7, :8 )`;
+   sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES (:1)`;
 
 
     binds = [
-      [ invoice_number, vendor_name, site_id, currency, gl_date, entity_name, amount, contentUrl ]
+      [ invoice_number]
     ];
 
     options = {
       autoCommit: true,
       // batchErrors: true,  // continue processing even if there are data errors
       bindDefs: [
-        { type: oracledb.VARCHAR, maxSize: 200 },
-        { type: oracledb.VARCHAR, maxSize: 200 },
-        { type: oracledb.NUMBER },
-        { type: oracledb.VARCHAR, maxSize: 200 },
-        { type: oracledb.DATE},
-        { type: oracledb.VARCHAR, maxSize: 200 },
-        { type: oracledb.NUMBER },
-        { type: oracledb.VARCHAR, maxSize: 300 }
+        { type: oracledb.STRING, maxSize: 200 }
       ]
     };
 
