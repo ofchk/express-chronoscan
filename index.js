@@ -360,7 +360,11 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               );
               console.log(contentUrl);
               console.log(invoice_number, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl);
-              const oracle = connect_oracle_staging(invoice_number, invoice_id, vendor_name, site_code, currency, gl_date, entity_name, amount, contentUrl)
+              const oracle = connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date)
+
+
+// connect_oracle_staging("StagingSample444" ,"Al NahlaSolutions LLC 98765", 106, "OMR","Muscat Overseas Engineering LLC", 1357, "http://alfresco.moc.com:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/c18aee25-4b3b-4e19-844f-458d158ea24c/content?attachment=false&alf_ticket=TICKET_2e1c58da2669bbe5f87a79492c259afaca3bdde8", "16-MAY-23")
+
               
               console.log('oracle',oracle);
 
