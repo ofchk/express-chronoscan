@@ -93,8 +93,9 @@ async function connect_oracle_staging(invoice_number, invoice_id, vendor_name, s
 
    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, GL_DATE) VALUES (:1)`;
 
+
     binds = [
-      [ invoice_number, invoice_id, vendor_name, site_id, currency, gl_date ]
+      [ invoice_number, vendor_name, site_id, currency, gl_date ]
     ];
 
     options = {
@@ -300,7 +301,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const vendor_name = req.body.vendor_name;
       const entity_name = req.body.entity_name;
       const currency = req.body.currency;
-      const site_code = req.body.site_code;
+      const site_code = req.body.site_id;
       const gl_date = req.body.gl_date;
       // const option = req.body.option;      
 
