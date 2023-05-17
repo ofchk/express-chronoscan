@@ -17,7 +17,9 @@
     "ldap-authentication": "^3.0.3",
     "multer": "*",
     "mysql2": "^3.3.0",
+    "node-cron": "^3.0.2",
     "node-fetch": "^2.6.9",
+    "oracledb": "^5.5.0",
     "pdf-dicer": "^0.4.4",
     "sequelize": "^6.31.1"
   }
