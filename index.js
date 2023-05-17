@@ -102,14 +102,14 @@ function save_staging(
       );            
       
 /// #### cron
-      var task = cron.schedule('*/15 * * * *', () => {
+      var task = cron.schedule('*/15 * * * * *', () => {
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
         const res = get_oracle_identifier(staging_id)
         console.log(res)
       });
 
-      cron.schedule('* 2 * * *', () => {
-        console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
+      cron.schedule('* 2 * * * *', () => {
+        console.log(`Cron is stopped."${invoice_id}" - "${new Date()}"`);
         task.stop();
       });      
     })
