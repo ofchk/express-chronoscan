@@ -68,7 +68,7 @@ function save_staging(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+        `Staging details added to hasura`
       );      
     })
     .catch((error) => {
@@ -81,7 +81,7 @@ function save_staging(
 
 
 
-async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl ) {
+async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl, invoice_id ) {
 
   let connection;
 
@@ -116,7 +116,8 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
                 sql,
                 binds,
                 options);
-    console.log("Number of rows inserted:", result);
+    console.log("Inserted Row ID:", result.lastRowID);
+    save_staging(invoice_id, result.lastRowID)
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
@@ -133,9 +134,6 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
     }
   }
 }
-
-//connect_oracle_staging("StagingSample444" ,"Al NahlaSolutions LLC 98765", 106, "OMR","Muscat Overseas Engineering LLC", 1357, "http://alfresco.moc.com:8080/alfresco/api/-default-/public/alfresco/versions/1/nodes/c18aee25-4b3b-4e19-844f-458d158ea24c/content?attachment=false&alf_ticket=TICKET_2e1c58da2669bbe5f87a79492c259afaca3bdde8", "16-MAY-23")
-
 
 function doc_dicer(itemPath){
   try {            
@@ -358,7 +356,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               );
               console.log(contentUrl);
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
-              const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl)
+              const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)
               
               console.log('oracle',oracle);
 
