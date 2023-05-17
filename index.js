@@ -110,7 +110,12 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 
 //{ type: oracledb.NUMBER },
 
-    result = await connection.execute(sql, binds,  options);
+    //result = await connection.execute(sql, binds,  options);
+
+    result= await connection.execute(
+                "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM) VALUES (:0)",
+                [invoice_number],
+                { autoCommit: true });
     console.log("Number of rows inserted:", result.rows);
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
