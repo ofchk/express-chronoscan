@@ -94,7 +94,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 //    result = await connection.execute(sql);
 //    console.log("Number of rows inserted:", result);
 
-   sql = `INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES ( invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl )`;
+   sql = `INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES ( invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl )`;
 
     binds = {};
 
