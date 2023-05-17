@@ -46,6 +46,36 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
+
+async function get_oracle_identifier( rowid ) {
+
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+   sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid=${rowid}`;    
+   result = await connection.execute(sql);
+   console.log("Result:", result);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+
+
 function save_staging(
   invoice_id, staging_id
 ) {
@@ -69,10 +99,16 @@ function save_staging(
       console.log('res',res)
       console.log(
         `Staging details added to hasura`
-      );      
-        cron.schedule('*/5 0-2 * * * *', () => {
-          console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
-        });
+      );            
+      
+/// #### cron
+      var task = cron.schedule('*/15 * * * *', () => {
+        console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
+        const res = get_oracle_identifier(staging_id)
+        console.log(res)
+      });
+
+      task.stop();
     })
     .catch((error) => {
       console.log(
@@ -93,9 +129,6 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
-//    sql = `INSERT INTO "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T" (INVOICE_NUM) VALUES ('Sample')`;    
-//    result = await connection.execute(sql);
-//    console.log("Number of rows inserted:", result);
 
    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
 
