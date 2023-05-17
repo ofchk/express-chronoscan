@@ -108,7 +108,10 @@ function save_staging(
         console.log(res)
       });
 
-      task.stop();
+      cron.schedule('* 2 * * *', () => {
+        console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
+        task.stop();
+      });      
     })
     .catch((error) => {
       console.log(
