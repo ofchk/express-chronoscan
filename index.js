@@ -70,7 +70,7 @@ function save_staging(
       console.log(
         `Staging details added to hasura`
       );      
-        cron.schedule('*/5,*/15,*/30,*/45,*/60,*/90,*/180,*/360, * * * * *', () => {
+        cron.schedule('5,15 * * * * *', () => {
           console.log('Cron is running.');
         });
     })
