@@ -362,7 +362,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               );
               console.log(contentUrl);
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
-              const oracle = await connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl)
+              const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl)
               
               console.log('oracle',oracle);
 
