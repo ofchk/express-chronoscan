@@ -116,7 +116,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
                 sql,
                 binds,
                 options);
-    console.log("Number of rows inserted:", result.rows);
+    console.log("Number of rows inserted:", result);
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
