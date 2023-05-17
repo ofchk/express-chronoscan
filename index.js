@@ -70,8 +70,8 @@ function save_staging(
       console.log(
         `Staging details added to hasura`
       );      
-        cron.schedule('5,15 * * * * *', () => {
-          console.log(`Cron is running."${invoice_id}"`);
+        cron.schedule('15 1-2 * * * *', () => {
+          console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
         });
     })
     .catch((error) => {
