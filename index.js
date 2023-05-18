@@ -65,47 +65,43 @@ async function fetch_vendor_entity() {
           number: result.rows[i][3], 
           site_code: result.rows[i][5]
         })
-      }
-      console.log(`mutation { 
-             insert_vendor(objects: ${tempArray}) {
-                affected_rows
-                returning {
-                  id
+        try{
+          fetch("http://192.168.5.130:8080/v1/graphql", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-hasura-admin-secret': 'chronoaccesskey001',
+            },
+            body: JSON.stringify({
+              query: `mutation { 
+               insert_vendor(objects: {
+                  name: "${result.rows[i][2]}", 
+                  number: "${result.rows[i][3]}", 
+                  site_code: "${result.rows[i][5]}"
+                }) {
+                  affected_rows
+                  returning {
+                    id
+                  }
                 }
-              }
-            }`)
-      try{
-        fetch("http://192.168.5.130:8080/v1/graphql", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-hasura-admin-secret': 'chronoaccesskey001',
-          },
-          body: JSON.stringify({
-            query: `mutation { 
-             insert_vendor(objects: ${tempArray}) {
-                affected_rows
-                returning {
-                  id
-                }
-              }
-            }`,
-          }),
-        })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log('res',res)            
-        })
-        .catch((error) => {      
-          console.log(
-            'There has been a problem with your fetch operation: ',
-            error
-          );
-        });
+              }`,
+            }),
+          })
+          .then((res) => res.json())
+          .then((res) => {
+            console.log('res',res)            
+          })
+          .catch((error) => {      
+            console.log(
+              'There has been a problem with your fetch operation: ',
+              error
+            );
+          });
+        }
+        catch (err) {    
+          console.error(err);
+        }
       }
-      catch (err) {    
-        console.error(err);
-      }       
     }
 
   } catch (err) {    
