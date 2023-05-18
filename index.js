@@ -54,7 +54,7 @@ async function fetch_vendor_entity() {
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
     
-    sql = `SELECT * FROM XXDMS_SUPPLIER_V  FETCH NEXT 5 ROWS ONLY; `;    
+    sql = `SELECT * FROM XXDMS_SUPPLIER_V FETCH NEXT 5 ROWS ONLY `;    
     result = await connection.execute(sql);
     // console.log("Result:", result.rows);
     if(result.rows.length > 0){
