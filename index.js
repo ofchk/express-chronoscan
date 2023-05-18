@@ -67,7 +67,7 @@ async function fetch_vendor_entity() {
         })
       }
       console.log(`mutation { 
-             insert_vendor(objects: "${tempArray}") {
+             insert_vendor(objects: ${tempArray}) {
                 affected_rows
                 returning {
                   id
@@ -83,7 +83,7 @@ async function fetch_vendor_entity() {
           },
           body: JSON.stringify({
             query: `mutation { 
-             insert_vendor(objects: "${tempArray}") {
+             insert_vendor(objects: ${tempArray}) {
                 affected_rows
                 returning {
                   id
