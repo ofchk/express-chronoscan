@@ -56,11 +56,11 @@ async function fetch_vendor_entity() {
     
     sql = `SELECT * FROM XXDMS_SUPPLIER_V  `;    
     result = await connection.execute(sql);
-    console.log("Result:", result.rows);
+    // console.log("Result:", result.rows);
     if(result.rows.length > 0){
       const tempArray = [];
       for (let i = 0; i < result.rows.length; i++) {
-        console.log(result.rows[i])
+        // console.log(result.rows[i])
         tempArray.push({
           name: result.rows[i].SUPPLIER_NAME, 
           number: result.rows[i].SUPPLIER_NUMBER, 
