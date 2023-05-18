@@ -57,8 +57,8 @@ async function get_oracle_identifier( rowid ) {
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
     
-    sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid="${rowid}"`;    
-    console.log("SQL : ", `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid="${rowid}"`);
+    sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}'`;    
+    console.log("SQL : ", `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}"'`);
     result = await connection.execute(sql);
     console.log("Result:", result);
 
@@ -107,12 +107,13 @@ function save_staging(
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
         const res = get_oracle_identifier(staging_id)
         console.log(res)
+        cron.schedule('1 * * * *', () => {
+          console.log(`Cron is stopped."${invoice_id}" - "${new Date()}"`);
+          task.stop();
+        }); 
       });
 
-      cron.schedule('1 * * * *', () => {
-        console.log(`Cron is stopped."${invoice_id}" - "${new Date()}"`);
-        task.stop();
-      });      
+           
     })
     .catch((error) => {
       console.log(
