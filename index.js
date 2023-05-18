@@ -56,7 +56,7 @@ async function get_oracle_identifier( rowid ) {
     
     sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}'`;    
     result = await connection.execute(sql);
-    console.log("Result:", result.rows[0].length);
+    console.log("Result:", result.rows[0][0]);
 
   } catch (err) {
     console.error(err);
