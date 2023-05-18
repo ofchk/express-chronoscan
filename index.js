@@ -59,49 +59,46 @@ async function fetch_vendor_entity() {
     // console.log("Result:", result.rows);
     if(result.rows.length > 0){
       const tempArray = [];
-      for (let i = 0; i < result.rows.length; i++) {
-         
+      for (let i = 0; i < result.rows.length; i++) {         
         tempArray.push({
           name: result.rows[i][2], 
           number: result.rows[i][3], 
           site_code: result.rows[i][5]
         })
-                
-        try{
-          fetch("http://192.168.5.130:8080/v1/graphql", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-hasura-admin-secret': 'chronoaccesskey001',
-            },
-            body: JSON.stringify({
-              query: `mutation { 
-               insert_vendor(objects: {name: result.rows[i][2], 
-          number: result.rows[i][3], 
-          site_code: result.rows[i][5] }) {
-                  affected_rows
-                  returning {
-                    id
-                  }
+      }
+      console.log(tempArray)
+      try{
+        fetch("http://192.168.5.130:8080/v1/graphql", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hasura-admin-secret': 'chronoaccesskey001',
+          },
+          body: JSON.stringify({
+            query: `mutation { 
+             insert_vendor(objects: '${tempArray}') {
+                affected_rows
+                returning {
+                  id
                 }
-              }`,
-            }),
-          })
-          .then((res) => res.json())
-          .then((res) => {
-            console.log('res',res)            
-          })
-          .catch((error) => {      
-            console.log(
-              'There has been a problem with your fetch operation: ',
-              error
-            );
-          });
-        }
-        catch (err) {    
-          console.error(err);
-        } 
-      }      
+              }
+            }`,
+          }),
+        })
+        .then((res) => res.json())
+        .then((res) => {
+          console.log('res',res)            
+        })
+        .catch((error) => {      
+          console.log(
+            'There has been a problem with your fetch operation: ',
+            error
+          );
+        });
+      }
+      catch (err) {    
+        console.error(err);
+      }       
     }
 
   } catch (err) {    
