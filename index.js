@@ -54,7 +54,7 @@ async function fetch_vendor_entity() {
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
     
-    sql = `SELECT * FROM XXDMS_SUPPLIER_V  `;    
+    sql = `SELECT * FROM XXDMS_SUPPLIER_V LIMIT 5 `;    
     result = await connection.execute(sql);
     // console.log("Result:", result.rows);
     if(result.rows.length > 0){
