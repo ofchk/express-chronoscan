@@ -46,6 +46,87 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
+
+async function fetch_vendor_entity() {
+  let connection;
+  try {
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+    
+    sql = `SELECT SUPPLIER_NUMBER, SUPPLIER_NAME, VENDOR_SITE_ID, ORG_ID  FROM XXDMS_SUPPLIER_V xsv `;    
+    result = await connection.execute(sql);
+    console.log("Result:", result.rows[0].length);
+    if(result.rows[0].length > 0){
+      const tempArray = [];
+      for (let i = 0; i < result.rows[0].length; i++) {
+        tempArray.push({
+          name: result.rows[0][i].SUPPLIER_NAME, 
+          number: result.rows[0][i].SUPPLIER_NUMBER, 
+          site_code: result.rows[0][i].VENDOR_SITE_ID
+        })
+      }
+      try{
+        fetch("http://192.168.5.130:8080/v1/graphql", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hasura-admin-secret': 'chronoaccesskey001',
+          },
+          body: JSON.stringify({
+            query: `mutation{ 
+             insert_vendor(objects: [
+                ${tempArray}
+              ]) {
+                affected_rows
+                returning {
+                  id
+                }
+              }
+            }`,
+          }),
+        })
+        .then((res) => res.json())
+        .then((res) => {
+          console.log('res',res)
+          console.log(
+            `Error log added to hasura`
+          );
+        })
+        .catch((error) => {      
+          console.log(
+            'There has been a problem with your fetch operation: ',
+            error
+          );
+        });
+      }
+      catch (err) {    
+        console.error(err);
+      } 
+    }
+
+  } catch (err) {    
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+
+fetch_vendor_entity()
+// cron.schedule('15 * * * *', () => {
+//   console.log(`Cron is running to fetch vendor`);
+//   const res = fetch_vendor_entity()
+// });
+
+
+
 function error_log_to_hasura(
   invoice_id,  
   message
