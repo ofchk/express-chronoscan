@@ -48,9 +48,7 @@ const { authenticate } = require('ldap-authentication');
 
 
 async function get_oracle_identifier( rowid ) {
-
   let connection;
-
   try {
 
     let sql, binds, options, result;
@@ -80,7 +78,6 @@ async function get_oracle_identifier( rowid ) {
 function save_staging(
   invoice_id, staging_id
 ) {
-
   fetch("http://192.168.5.130:8080/v1/graphql", {
     method: 'POST',
     headers: {
@@ -102,18 +99,17 @@ function save_staging(
         `Staging details added to hasura`
       );            
       
-/// #### cron
+////// #### cron
       var task = cron.schedule('*/15 * * * * *', () => {
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
         const res = get_oracle_identifier(staging_id)
-        console.log(res)
-        cron.schedule('1 * * * *', () => {
-          console.log(`Cron is stopped."${invoice_id}" - "${new Date()}"`);
-          task.stop();
-        }); 
+        console.log(res)        
       });
 
-           
+      setTimeout(function () {
+        task.stop();
+        console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
+      }, 60000)      
     })
     .catch((error) => {
       console.log(
@@ -399,8 +395,6 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)
               
-              console.log('oracle',oracle);
-
               result.push({
                 status: 200,
                 invoice_number: invoice_number,
