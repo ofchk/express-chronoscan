@@ -75,7 +75,7 @@ async function fetch_vendor_entity() {
               'x-hasura-admin-secret': 'chronoaccesskey001',
             },
             body: JSON.stringify({
-              query: `mutation insertVendor{ 
+              query: `mutation { 
                insert_vendor(objects: '${tempArray}') {
                   affected_rows
                   returning {
