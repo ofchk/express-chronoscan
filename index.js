@@ -174,7 +174,7 @@ function save_staging(
         task.stop();
         error_log_to_hasura(invoice_id, "Oracle Identifier not found.");
         console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
-      }, 120000)      
+      }, 360000)      
     })
     .catch((error) => {
       error_log_to_hasura(invoice_id, "Adding Staging identifier to File Controller App has been failed.");
