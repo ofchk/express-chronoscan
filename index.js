@@ -48,10 +48,9 @@ const { authenticate } = require('ldap-authentication');
 
 function save_oracle_identifier(
   invoice_id,  
-  prod_id,
-  task
+  prod_id
 ) {
-  task.stop();
+  
   fetch("http://192.168.5.130:8080/v1/graphql", {
     method: 'POST',
     headers: {
@@ -79,7 +78,7 @@ function save_oracle_identifier(
     });
 }
 
-async function get_oracle_identifier( invoice_id, rowid ) {
+async function get_oracle_identifier( invoice_id, rowid, task ) {
   let connection;
   try {
     let sql, binds, options, result;
@@ -91,6 +90,7 @@ async function get_oracle_identifier( invoice_id, rowid ) {
     console.log("Result:", result.rows[0][0]);
     if(result.rows[0][0]){
       save_oracle_identifier(invoice_id,result.rows[0][0])
+      task.stop()
     }
 
   } catch (err) {
