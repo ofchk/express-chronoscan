@@ -46,6 +46,38 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
+function error_log_to_hasura(
+  invoice_id,  
+  mesaage
+) {
+  
+  fetch("http://192.168.5.130:8080/v1/graphql", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-hasura-admin-secret': 'chronoaccesskey001',
+    },
+    body: JSON.stringify({
+      query: `mutation{ insert_error_logs_one(object: {invoice_id: "${invoice_id}", message: "${message}"}) {
+        id
+      }}`,
+    }),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log('res',res)
+      console.log(
+        `Error log added to hasura`
+      );
+    })
+    .catch((error) => {      
+      console.log(
+        'There has been a problem with your fetch operation: ',
+        error
+      );
+    });
+}
+
 function save_oracle_identifier(
   invoice_id,  
   prod_id
@@ -71,6 +103,7 @@ function save_oracle_identifier(
       );
     })
     .catch((error) => {
+      error_log_to_hasura(invoice_id, "Adding Oracle Identifier to File Controller App has been failed.");
       console.log(
         'There has been a problem with your fetch operation: ',
         error
@@ -94,6 +127,7 @@ async function get_oracle_identifier( invoice_id, rowid, task ) {
     }
 
   } catch (err) {
+    error_log_to_hasura(invoice_id, "Fetch Staging Identifier from Staging table has been failed.");
     console.error(err);
   } finally {
     if (connection) {
@@ -105,7 +139,6 @@ async function get_oracle_identifier( invoice_id, rowid, task ) {
     }
   }
 }
-
 
 function save_staging(
   invoice_id, staging_id
@@ -143,14 +176,13 @@ function save_staging(
       }, 120000)      
     })
     .catch((error) => {
+      error_log_to_hasura(invoice_id, "Adding Staging identifier to File Controller App has been failed.");
       console.log(
         'There has been a problem with your fetch operation: ',
         error
       );
     });
 }
-
-
 
 async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl, invoice_id ) {
 
@@ -191,6 +223,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 // console.log("Fetch: ", result2.rows)
 
   } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
     console.error(err);
   } finally {
     if (connection) {
@@ -261,6 +294,7 @@ function save_doc_details(
       );      
     })
     .catch((error) => {
+      error_log_to_hasura(invoice_id, "Adding Alfresco upload success details to File Controller App has been failed.");
       console.log(
         'There has been a problem with your fetch operation: ',
         error
@@ -292,6 +326,7 @@ function save_doc_fail(
       );      
     })
     .catch((error) => {
+      error_log_to_hasura(invoice_id, "Adding Alfresco upload failed details to File Controller App has been failed.");
       console.log(
         'There has been a problem with your fetch operation: ',
         error
@@ -444,6 +479,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               );
             },
             function (error) {
+              error_log_to_hasura(invoice_id, "Upload document to Alfresco has been failed.");
               console.log(
                 'errorkey',
                 JSON.parse(error.response.text).error.errorKey
@@ -459,6 +495,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
     res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
     save_doc_fail(req.body.invoice_id)
+    error_log_to_hasura(invoice_id, "Upload document to server has been failed.");
     res.status(500).send({
       message: `Error - Could not upload the file with Invoice Number:  ${req.body.invoice} `,
     });
