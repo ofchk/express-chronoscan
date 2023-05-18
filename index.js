@@ -66,7 +66,14 @@ async function fetch_vendor_entity() {
           site_code: result.rows[i][5]
         })
       }
-      console.log(tempArray)
+      console.log(`mutation { 
+             insert_vendor(objects: "${tempArray}") {
+                affected_rows
+                returning {
+                  id
+                }
+              }
+            }`)
       try{
         fetch("http://192.168.5.130:8080/v1/graphql", {
           method: 'POST',
