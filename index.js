@@ -172,6 +172,7 @@ function save_staging(
 
       setTimeout(function () {
         task.stop();
+        error_log_to_hasura(invoice_id, "No Oracle Identifier found .");
         console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
       }, 120000)      
     })
