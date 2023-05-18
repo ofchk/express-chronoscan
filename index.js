@@ -50,15 +50,13 @@ const { authenticate } = require('ldap-authentication');
 async function get_oracle_identifier( rowid ) {
   let connection;
   try {
-
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
     
     sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}'`;    
-    console.log("SQL : ", `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}"'`);
     result = await connection.execute(sql);
-    console.log("Result:", result);
+    console.log("Result:", result.rows[0].length);
 
   } catch (err) {
     console.error(err);
@@ -103,13 +101,12 @@ function save_staging(
       var task = cron.schedule('*/15 * * * * *', () => {
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
         const res = get_oracle_identifier(staging_id)
-        console.log(res)        
       });
 
       setTimeout(function () {
         task.stop();
         console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
-      }, 60000)      
+      }, 120000)      
     })
     .catch((error) => {
       console.log(
