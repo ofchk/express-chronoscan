@@ -60,47 +60,48 @@ async function fetch_vendor_entity() {
     if(result.rows[0].length > 0){
       const tempArray = [];
       for (let i = 0; i < result.rows[0].length; i++) {
+        console.log(result.rows[0][i].SUPPLIER_NAME)
         tempArray.push({
           name: result.rows[0][i].SUPPLIER_NAME, 
           number: result.rows[0][i].SUPPLIER_NUMBER, 
           site_code: result.rows[0][i].VENDOR_SITE_ID
         })
-      }
-      try{
-        fetch("http://192.168.5.130:8080/v1/graphql", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-hasura-admin-secret': 'chronoaccesskey001',
-          },
-          body: JSON.stringify({
-            query: `mutation{ 
-             insert_vendor(objects: ${tempArray}) {
-                affected_rows
-                returning {
-                  id
+        try{
+          fetch("http://192.168.5.130:8080/v1/graphql", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-hasura-admin-secret': 'chronoaccesskey001',
+            },
+            body: JSON.stringify({
+              query: `mutation{ 
+               insert_vendor(objects: ${tempArray}) {
+                  affected_rows
+                  returning {
+                    id
+                  }
                 }
-              }
-            }`,
-          }),
-        })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log('res',res)
-          console.log(
-            `Error log added to hasura`
-          );
-        })
-        .catch((error) => {      
-          console.log(
-            'There has been a problem with your fetch operation: ',
-            error
-          );
-        });
-      }
-      catch (err) {    
-        console.error(err);
-      } 
+              }`,
+            }),
+          })
+          .then((res) => res.json())
+          .then((res) => {
+            console.log('res',res)
+            console.log(
+              `Error log added to hasura`
+            );
+          })
+          .catch((error) => {      
+            console.log(
+              'There has been a problem with your fetch operation: ',
+              error
+            );
+          });
+        }
+        catch (err) {    
+          console.error(err);
+        } 
+      }      
     }
 
   } catch (err) {    
