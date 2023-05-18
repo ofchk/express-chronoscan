@@ -48,9 +48,10 @@ const { authenticate } = require('ldap-authentication');
 
 function save_oracle_identifier(
   invoice_id,  
-  prod_id
+  prod_id,
+  task
 ) {
-
+  task.stop();
   fetch("http://192.168.5.130:8080/v1/graphql", {
     method: 'POST',
     headers: {
@@ -67,7 +68,7 @@ function save_oracle_identifier(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+        `oracle_document_identifier added to hasura`
       );
     })
     .catch((error) => {
@@ -127,13 +128,13 @@ function save_staging(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `Staging details added to hasura`
+        `Staging identifier details added to hasura`
       );            
       
 ////// #### cron
       var task = cron.schedule('*/15 * * * * *', () => {
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
-        const res = get_oracle_identifier(invoice_id, staging_id)
+        const res = get_oracle_identifier(invoice_id, staging_id, task)
       });
 
       setTimeout(function () {
@@ -287,7 +288,7 @@ function save_doc_fail(
     .then((res) => {
       console.log('res',res)
       console.log(
-        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+        `Alfresco upload error details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
       );      
     })
     .catch((error) => {
