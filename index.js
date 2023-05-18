@@ -46,8 +46,39 @@ const upload = multer({ storage: storage });
 
 const { authenticate } = require('ldap-authentication');
 
+function save_oracle_identifier(
+  invoice_id,  
+  prod_id
+) {
 
-async function get_oracle_identifier( rowid ) {
+  fetch("http://192.168.5.130:8080/v1/graphql", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-hasura-admin-secret': 'chronoaccesskey001',
+    },
+    body: JSON.stringify({
+      query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {oracle_document_identifier: "${prod_id}"}) {
+      id
+    }}`,
+    }),
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      console.log('res',res)
+      console.log(
+        `File Failed details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+      );
+    })
+    .catch((error) => {
+      console.log(
+        'There has been a problem with your fetch operation: ',
+        error
+      );
+    });
+}
+
+async function get_oracle_identifier( invoice_id, rowid ) {
   let connection;
   try {
     let sql, binds, options, result;
@@ -57,6 +88,9 @@ async function get_oracle_identifier( rowid ) {
     sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid='${rowid}'`;    
     result = await connection.execute(sql);
     console.log("Result:", result.rows[0][0]);
+    if(result.rows[0][0]){
+      save_oracle_identifier(invoice_id,result.rows[0][0])
+    }
 
   } catch (err) {
     console.error(err);
@@ -70,7 +104,6 @@ async function get_oracle_identifier( rowid ) {
     }
   }
 }
-
 
 
 function save_staging(
@@ -100,7 +133,7 @@ function save_staging(
 ////// #### cron
       var task = cron.schedule('*/15 * * * * *', () => {
         console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
-        const res = get_oracle_identifier(staging_id)
+        const res = get_oracle_identifier(invoice_id, staging_id)
       });
 
       setTimeout(function () {
