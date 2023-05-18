@@ -61,9 +61,9 @@ async function fetch_vendor_entity() {
       const tempArray = [];
       for (let i = 0; i < result.rows.length; i++) {         
         tempArray.push({
-          name: result.rows[i][2], 
-          number: result.rows[i][3], 
-          site_code: result.rows[i][5]
+          name: "${result.rows[i][2]}", 
+          number: "${result.rows[i][3]}", 
+          site_code: "${result.rows[i][5]}"
         })
       }
       console.log(tempArray)
