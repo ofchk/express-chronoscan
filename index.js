@@ -48,7 +48,7 @@ const { authenticate } = require('ldap-authentication');
 
 function error_log_to_hasura(
   invoice_id,  
-  mesaage
+  message
 ) {
   
   fetch("http://192.168.5.130:8080/v1/graphql", {
@@ -172,7 +172,7 @@ function save_staging(
 
       setTimeout(function () {
         task.stop();
-        error_log_to_hasura(invoice_id, "No Oracle Identifier found .");
+        error_log_to_hasura(invoice_id, "No Oracle Identifier found.");
         console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
       }, 120000)      
     })
