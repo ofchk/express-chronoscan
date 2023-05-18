@@ -66,8 +66,7 @@ async function fetch_vendor_entity() {
           number: result.rows[i][3], 
           site_code: result.rows[i][5]
         })
-        
-        console.log(tempArray)
+                
         try{
           fetch("http://192.168.5.130:8080/v1/graphql", {
             method: 'POST',
