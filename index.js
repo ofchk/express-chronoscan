@@ -60,7 +60,7 @@ async function fetch_vendor_entity() {
     if(result.rows[0].length > 0){
       const tempArray = [];
       for (let i = 0; i < result.rows[0].length; i++) {
-        console.log(result.rows[0][i].SUPPLIER_NAME)
+        console.log(result.rows[0][i])
         tempArray.push({
           name: result.rows[0][i].SUPPLIER_NAME, 
           number: result.rows[0][i].SUPPLIER_NUMBER, 
@@ -86,10 +86,7 @@ async function fetch_vendor_entity() {
           })
           .then((res) => res.json())
           .then((res) => {
-            console.log('res',res)
-            console.log(
-              `Error log added to hasura`
-            );
+            console.log('res',res)            
           })
           .catch((error) => {      
             console.log(
