@@ -76,7 +76,9 @@ async function fetch_vendor_entity() {
             },
             body: JSON.stringify({
               query: `mutation { 
-               insert_vendor(objects: '${tempArray}') {
+               insert_vendor(objects: {name: result.rows[i][2], 
+          number: result.rows[i][3], 
+          site_code: result.rows[i][5] }) {
                   affected_rows
                   returning {
                     id
