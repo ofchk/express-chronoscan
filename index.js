@@ -56,15 +56,15 @@ async function fetch_vendor_entity() {
     
     sql = `SELECT * FROM XXDMS_SUPPLIER_V  `;    
     result = await connection.execute(sql);
-    console.log("Result:", result.rows[0]);
-    if(result.rows[0].length > 0){
+    console.log("Result:", result.rows);
+    if(result.rows.length > 0){
       const tempArray = [];
-      for (let i = 0; i < result.rows[0].length; i++) {
-        console.log(result.rows[0][i])
+      for (let i = 0; i < result.rows.length; i++) {
+        console.log(result.rows[i])
         tempArray.push({
-          name: result.rows[0][i].SUPPLIER_NAME, 
-          number: result.rows[0][i].SUPPLIER_NUMBER, 
-          site_code: result.rows[0][i].VENDOR_SITE_ID
+          name: result.rows[i].SUPPLIER_NAME, 
+          number: result.rows[i].SUPPLIER_NUMBER, 
+          site_code: result.rows[i].VENDOR_SITE_ID
         })
         try{
           fetch("http://192.168.5.130:8080/v1/graphql", {
