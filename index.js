@@ -56,6 +56,7 @@ async function get_oracle_identifier( rowid ) {
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
+    console.log("rowid", rowid);
 
    sql = `SELECT ERP_DOC_NUMBER from XXMO_DMS_AP_INVOICE_STG_T where rowid=${rowid}`;    
    result = await connection.execute(sql);
@@ -108,7 +109,7 @@ function save_staging(
         console.log(res)
       });
 
-      cron.schedule('* 2 * * * *', () => {
+      cron.schedule('2 * * * *', () => {
         console.log(`Cron is stopped."${invoice_id}" - "${new Date()}"`);
         task.stop();
       });      
