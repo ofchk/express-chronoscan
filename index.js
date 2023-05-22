@@ -54,7 +54,7 @@ async function fetch_vendor() {
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
     
-    sql = `SELECT * FROM XXDMS_SUPPLIER_V `;    
+    sql = `SELECT * FROM XXDMS_SUPPLIER_V  `;    
     result = await connection.execute(sql);
     // console.log("Result:", result.rows);
     if(result.rows.length > 0){
