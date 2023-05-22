@@ -75,8 +75,10 @@ async function fetch_vendor() {
             body: JSON.stringify({
               query: `mutation { 
                insert_vendor(objects: {
-                  name: "${result.rows[i][2]}", 
-                  number: "${result.rows[i][3]}", 
+                  name: "${result.rows[i][0]}",
+                  number: "${result.rows[i][1]}",
+                  supplier_name: "${result.rows[i][2]}", 
+                  supplier_number: "${result.rows[i][3]}", 
                   site_code: "${result.rows[i][5]}",
                   org_id: "${result.rows[i][7]}",
                 }) {
