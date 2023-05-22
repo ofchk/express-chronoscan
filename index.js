@@ -47,7 +47,7 @@ const upload = multer({ storage: storage });
 const { authenticate } = require('ldap-authentication');
 
 
-async function fetch_vendor_entity() {
+async function fetch_vendor() {
   let connection;
   try {
     let sql, binds, options, result;
@@ -77,7 +77,8 @@ async function fetch_vendor_entity() {
                insert_vendor(objects: {
                   name: "${result.rows[i][2]}", 
                   number: "${result.rows[i][3]}", 
-                  site_code: "${result.rows[i][5]}"
+                  site_code: "${result.rows[i][5]}",
+                  org_id: "${result.rows[i][7]}",
                 }) {
                   affected_rows
                   returning {
@@ -117,8 +118,79 @@ async function fetch_vendor_entity() {
   }
 }
 
+//fetch_vendor()
 
-fetch_vendor_entity()
+async function fetch_entity() {
+  let connection;
+  try {
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+    
+    sql = `SELECT * FROM XXDMS_OPERATING_UNITS `;    
+    result = await connection.execute(sql);
+    // console.log("Result:", result.rows);
+    if(result.rows.length > 0){
+      const tempArray = [];
+      for (let i = 0; i < result.rows.length; i++) {         
+        tempArray.push({
+          name: result.rows[i][2], 
+          number: result.rows[i][3], 
+          site_code: result.rows[i][5]
+        })
+        try{
+          fetch("http://192.168.5.130:8080/v1/graphql", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-hasura-admin-secret': 'chronoaccesskey001',
+            },
+            body: JSON.stringify({
+              query: `mutation { 
+               insert_entity(objects: {
+                  title: "${result.rows[i][1]}", 
+                  secret_code: "${result.rows[i][2]}",
+                  org_id: "${result.rows[i][0]}"
+                }) {
+                  affected_rows
+                  returning {
+                    id
+                  }
+                }
+              }`,
+            }),
+          })
+          .then((res) => res.json())
+          .then((res) => {
+            console.log('res',res)            
+          })
+          .catch((error) => {      
+            console.log(
+              'There has been a problem with your fetch operation: ',
+              error
+            );
+          });
+        }
+        catch (err) {    
+          console.error(err);
+        }
+      }
+    }
+
+  } catch (err) {    
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+fetch_entity()
 // cron.schedule('15 * * * *', () => {
 //   console.log(`Cron is running to fetch vendor`);
 //   const res = fetch_vendor_entity()
