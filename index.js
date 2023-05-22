@@ -118,7 +118,7 @@ async function fetch_vendor() {
   }
 }
 
-//fetch_vendor()
+fetch_vendor()
 
 async function fetch_entity() {
   let connection;
@@ -190,7 +190,9 @@ async function fetch_entity() {
   }
 }
 
-fetch_entity()
+//fetch_entity()
+
+
 // cron.schedule('15 * * * *', () => {
 //   console.log(`Cron is running to fetch vendor`);
 //   const res = fetch_vendor_entity()
