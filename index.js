@@ -53,7 +53,7 @@ async function fetch_vendor() {
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
-    
+    console.log(new Date)
     sql = `SELECT * FROM XXDMS_SUPPLIER_V  `;    
     result = await connection.execute(sql);
     // console.log("Result:", result.rows);
@@ -93,7 +93,8 @@ async function fetch_vendor() {
           })
           .then((res) => res.json())
           .then((res) => {
-            console.log('res',res)            
+            console.log('res',${JSON.stringify(res.data.insert_vendor.returning[0].id)})            
+            console.log(new Date)
           })
           .catch((error) => {      
             console.log(
