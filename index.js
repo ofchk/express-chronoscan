@@ -82,7 +82,7 @@ async function fetch_vendor() {
                     site_code: "${result.rows[i][5]}",
                     org_id: "${result.rows[i][7]}",
                   }, 
-                    on_conflict: {constraint: vendor_org_id_supplier_number_key, update_columns: $update_columns}) {
+                    on_conflict: {constraint: vendor_org_id_supplier_number_site_code_key, update_columns: $update_columns}) {
                     affected_rows
                     returning {
                       id
@@ -121,8 +121,6 @@ async function fetch_vendor() {
     }
   }
 }
-
-fetch_vendor()
 
 async function fetch_entity() {
   let connection;
@@ -194,13 +192,14 @@ async function fetch_entity() {
   }
 }
 
-//fetch_entity()
+//
 
 
-// cron.schedule('15 * * * *', () => {
-//   console.log(`Cron is running to fetch vendor`);
-//   const res = fetch_vendor_entity()
-// });
+cron.schedule('15 * * * *', () => {
+  console.log(`Cron is running to fetch entity & vendor`);
+  fetch_entity()
+  fetch_vendor() 
+});
 
 
 
