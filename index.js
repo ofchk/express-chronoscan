@@ -170,8 +170,7 @@ async function fetch_entity() {
             console.log(
               'There has been a problem with your fetch operation: ',
               error
-            );
-            exit()
+            );          
           });
         }
         catch (err) {    
@@ -193,14 +192,12 @@ async function fetch_entity() {
   }
 }
 
-fetch_entity()
 fetch_vendor() 
-
 
 cron.schedule('15 * * * *', () => {
   console.log(`Cron is running to fetch entity & vendor`);
   fetch_entity()
-  fetch_vendor() 
+  
 });
 
 
