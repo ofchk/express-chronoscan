@@ -171,6 +171,7 @@ async function fetch_entity() {
               'There has been a problem with your fetch operation: ',
               error
             );
+            exit()
           });
         }
         catch (err) {    
