@@ -93,7 +93,7 @@ async function fetch_vendor() {
           })
           .then((res) => res.json())
           .then((res) => {
-            console.log('res',${JSON.stringify(res.data.insert_vendor.returning[0].id)})            
+            console.log('res', res.data.insert_vendor.returning[0].id)
             console.log(new Date())
           })
           .catch((error) => {      
