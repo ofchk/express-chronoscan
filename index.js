@@ -192,7 +192,8 @@ async function fetch_entity() {
   }
 }
 
-//
+fetch_entity()
+fetch_vendor() 
 
 
 cron.schedule('15 * * * *', () => {
