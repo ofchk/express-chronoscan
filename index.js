@@ -73,21 +73,22 @@ async function fetch_vendor() {
               'x-hasura-admin-secret': 'chronoaccesskey001',
             },
             body: JSON.stringify({
-              query: `mutation { 
-               insert_vendor(objects: {
-                  name: "${result.rows[i][1]}",
-                  number: "${result.rows[i][0]}",
-                  supplier_name: "${result.rows[i][3]}", 
-                  supplier_number: "${result.rows[i][2]}", 
-                  site_code: "${result.rows[i][5]}",
-                  org_id: "${result.rows[i][7]}",
-                }) {
-                  affected_rows
-                  returning {
-                    id
+              query: `mutation Upsert( $update_columns: [vendor_update_column!] = [ name, number, supplier_name, supplier_number, site_code, org_id ]) {
+                  insert_vendor(objects: {
+                    name: "${result.rows[i][1]}",
+                    number: "${result.rows[i][0]}",
+                    supplier_name: "${result.rows[i][3]}", 
+                    supplier_number: "${result.rows[i][2]}", 
+                    site_code: "${result.rows[i][5]}",
+                    org_id: "${result.rows[i][7]}",
+                  }, 
+                    on_conflict: {constraint: vendor_org_id_supplier_number_key, update_columns: $update_columns}) {
+                    affected_rows
+                    returning {
+                      id
+                    }
                   }
-                }
-              }`,
+                }`,
             }),
           })
           .then((res) => res.json())
