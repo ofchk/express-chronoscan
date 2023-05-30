@@ -192,15 +192,15 @@ async function fetch_entity() {
   }
 }
 
-fetch_vendor() 
-
 cron.schedule('15 * * * *', () => {
-  console.log(`Cron is running to fetch entity & vendor`);
-  fetch_entity()
-  
+  console.log(`Cron is running to fetch vendor`);
+  fetch_vendor()
 });
 
-
+cron.schedule('26 * * * *', () => {
+  console.log(`Cron is running to fetch entity`);
+  fetch_entity()
+});
 
 function error_log_to_hasura(
   invoice_id,  
@@ -562,6 +562,19 @@ app.post('/user/login', async (req, res) => {
     });
   }  
 });
+
+
+app.post('/process', async (req, res) => {
+  try {      
+    console.log(req.body)
+  } catch (err) {    
+    console.log(err)
+    res.status(500).send({
+      message: `Error - Process API Failed. `,
+    });
+  }  
+});
+
 
 app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
