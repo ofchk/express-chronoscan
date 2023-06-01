@@ -601,7 +601,7 @@ async function connect_oracle_staging_from_chronoscan( invoice_number, lpo, d_nu
 // console.log("Fetch: ", result2.rows)
 
   } catch (err) {
-    error_log_to_hasura(invoice_id, "UPDATING invoice data to Staging table has been failed.");
+    //error_log_to_hasura(invoice_id, "UPDATING invoice data to Staging table has been failed.");
     console.error(err);
   } finally {
     if (connection) {
@@ -653,7 +653,7 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
 // console.log("Fetch: ", result2.rows)
 
   } catch (err) {
-    error_log_to_hasura(invoice_id, "Adding invoice line item data to Staging table has been failed.");
+    //error_log_to_hasura(invoice_id, "Adding invoice line item data to Staging table has been failed.");
     console.error(err);
   } finally {
     if (connection) {
