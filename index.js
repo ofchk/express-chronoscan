@@ -561,6 +561,111 @@ app.post('/user/login', async (req, res) => {
   }  
 });
 
+async function connect_oracle_staging_from_chronoscan( invoice_number, lpo, d_number, d_date ) {
+
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+  
+   // sql = "UPDATE XXMO_DMS_AP_INVOICE_STG_T  SET ( LPO_NUMBER = "${LPO}", DELIVERY_DATE="${d_date}", DELIVERY_NUMBER="${d_number}" ) WHERE INVOICE_NUM = "${invoice_number}";"
+    
+   //  binds = [];    
+
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE, LPO_NUMBER, DELIVERY_NUMBER, DELIVERY_DATE) VALUES (:1,:2,:3,:4)";
+
+    binds = [invoice_number, lpo, d_number, d_date];
+
+    options = {
+      autoCommit: true,
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+      // batchErrors: true,  // continue processing even if there are data errors
+      // bindDefs: [
+      //   { type: oracledb.STRING, maxSize: 200 }
+
+      // ]
+    };
+
+//{ type: oracledb.NUMBER },
+
+    //result = await connection.execute(sql, binds,  options);
+
+    result = await connection.execute( sql, binds, options);
+    console.log("Chronoscan data in staging table UPDATED Row ID:", result.lastRowid);
+
+// result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
+// console.log("Fetch: ", result2.rows)
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "UPDATING invoice data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate, gross, vat ) {
+
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+   sql = "INSERT INTO INVOICE_LINE_ITEM_STG (INVOICE, ITEM_NAME, UNIT, QTY, RATE, GROSS, VAT) VALUES (:1,:2,:3,:4,:5,:6,:7)";
+
+    binds = [invoice, item, unit, qty, rate, gross, vat];    
+
+    options = {
+      autoCommit: true,
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+      // batchErrors: true,  // continue processing even if there are data errors
+      // bindDefs: [
+      //   { type: oracledb.STRING, maxSize: 200 }
+
+      // ]
+    };
+
+//{ type: oracledb.NUMBER },
+
+    //result = await connection.execute(sql, binds,  options);
+
+    result = await connection.execute(
+                sql,
+                binds,
+                options);
+    console.log("Inserted Line Item Row ID:", result.lastRowid);
+    save_staging(invoice_id, result.lastRowid)
+
+// result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
+// console.log("Fetch: ", result2.rows)
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding invoice line item data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
 
 app.post('/process', async (req, res) => {
   try {      
@@ -568,6 +673,8 @@ app.post('/process', async (req, res) => {
     console.log('req',req.body)
     console.log(json[0])
     console.log(json[1])
+    connect_oracle_staging_from_chronoscan(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply )
+    connect_oracle_staging_item_list(json[0].invoice, json[1].line_items[0].item, json[1].line_items[0].unit, json[1].line_items[0].qty, json[1].line_items[0].rate, json[1].line_items[0].gross, json[1].line_items[0].vat)
   } catch (err) {    
     console.log('error',err)
     res.status(500).send({
