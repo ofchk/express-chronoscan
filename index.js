@@ -564,9 +564,12 @@ app.post('/user/login', async (req, res) => {
 
 app.post('/process', async (req, res) => {
   try {      
-    console.log(JSON.stringify(req.body))
+    const json = req.body
+    console.log('req',req.body)
+    console.log(json[0])
+    console.log(json[1])
   } catch (err) {    
-    console.log(err)
+    console.log('error',err)
     res.status(500).send({
       message: `Error - Process API Failed. `,
     });
