@@ -206,28 +206,27 @@ function error_log_to_hasura(
   invoice_id,  
   message
 ) {
-  
-  fetch("http://192.168.5.130:8080/v1/graphql", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': 'chronoaccesskey001',
-    },
-    body: JSON.stringify({
-      query: `mutation{ insert_error_logs_one(object: {invoice_id: "${invoice_id}", message: "${message}"}) {
-        id
-      }}`,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log('res',res)
-      console.log(
-        `Error log added to hasura`
-      );
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ insert_error_logs_one(object: {invoice_id: "${invoice_id}", message: "${message}"}) {
+          id
+        }}`,
+      }),
     })
-    .catch((error) => {      
-      console.log(
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Error log added to hasura`
+        );
+      })
+      .catch((error) => {      
+        console.log(
         'There has been a problem with your fetch operation: ',
         error
       );
@@ -239,31 +238,31 @@ function save_oracle_identifier(
   prod_id
 ) {
   
-  fetch("http://192.168.5.130:8080/v1/graphql", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': 'chronoaccesskey001',
-    },
-    body: JSON.stringify({
-      query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {oracle_document_identifier: "${prod_id}"}) {
-      id
-    }}`,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log('res',res)
-      console.log(
-        `oracle_document_identifier added to hasura`
-      );
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {oracle_document_identifier: "${prod_id}"}) {
+        id
+      }}`,
+      }),
     })
-    .catch((error) => {
-      error_log_to_hasura(invoice_id, "Adding Oracle Identifier to File Controller App has been failed.");
-      console.log(
-        'There has been a problem with your fetch operation: ',
-        error
-      );
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `oracle_document_identifier added to hasura`
+        );
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Adding Oracle Identifier to File Controller App has been failed.");
+        console.log(
+          'There has been a problem with your fetch operation: ',
+          error
+        );
     });
 }
 
@@ -299,47 +298,47 @@ async function get_oracle_identifier( invoice_id, rowid, task ) {
 function save_staging(
   invoice_id, staging_id
 ) {
-  fetch("http://192.168.5.130:8080/v1/graphql", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': 'chronoaccesskey001',
-    },
-    body: JSON.stringify({
-      query: `mutation{ insert_staging_one(object: {invoice_id: "${invoice_id}", staging_document_identifier: "${staging_id}"}) {
-        id
-        invoice_id
-        staging_document_identifier
-      }}`,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log('res',res)
-      console.log(
-        `Staging identifier details added to hasura`
-      );            
-      
-////// #### cron
-      var task = cron.schedule('*/15 * * * * *', () => {
-        console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
-        const res = get_oracle_identifier(invoice_id, staging_id, task)
-      });
-
-      setTimeout(function () {
-        task.stop();
-        error_log_to_hasura(invoice_id, "Oracle Identifier not found.");
-        console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
-      }, 360000)      
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ insert_staging_one(object: {invoice_id: "${invoice_id}", staging_document_identifier: "${staging_id}"}) {
+          id
+          invoice_id
+          staging_document_identifier
+        }}`,
+      }),
     })
-    .catch((error) => {
-      error_log_to_hasura(invoice_id, "Adding Staging identifier to File Controller App has been failed.");
-      console.log(
-        'There has been a problem with your fetch operation: ',
-        error
-      );
-    });
-}
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Staging identifier details added to hasura`
+        );            
+        
+  ////// #### cron
+        var task = cron.schedule('*/15 * * * * *', () => {
+          console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
+          const res = get_oracle_identifier(invoice_id, staging_id, task)
+        });
+
+        setTimeout(function () {
+          task.stop();
+          error_log_to_hasura(invoice_id, "Oracle Identifier not found.");
+          console.log(`Cron Stopped."${invoice_id}" - "${new Date()}"`);
+        }, 360000)      
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Adding Staging identifier to File Controller App has been failed.");
+        console.log(
+          'There has been a problem with your fetch operation: ',
+          error
+        );
+      });
+  }
 
 async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl, invoice_id ) {
 
@@ -426,70 +425,69 @@ function save_doc_details(
   filename,
   nodeid
 ) {
-
-  fetch("http://192.168.5.130:8080/v1/graphql", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': 'chronoaccesskey001',
-    },
-    body: JSON.stringify({
-      query: `mutation{ insert_files_one(object: {alfresco_url: "${alfresco_url}", created_by: 1, invoice_id: "${invoice_id}", invoice_number: "${invoice_number}", name: "${filename}", nodeid: "${nodeid}"}) {
-      id
-      invoice_id
-      invoice_number
-    } update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 2}) {
-      id
-    }}`,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log('res',res)
-      console.log(
-        `Alfresco data addded to hasura: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
-      );      
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ insert_files_one(object: {alfresco_url: "${alfresco_url}", created_by: 1, invoice_id: "${invoice_id}", invoice_number: "${invoice_number}", name: "${filename}", nodeid: "${nodeid}"}) {
+        id
+        invoice_id
+        invoice_number
+      } update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 2}) {
+        id
+      }}`,
+      }),
     })
-    .catch((error) => {
-      error_log_to_hasura(invoice_id, "Adding Alfresco upload success details to File Controller App has been failed.");
-      console.log(
-        'There has been a problem with your fetch operation: ',
-        error
-      );
-    });
-}
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Alfresco data addded to hasura: ${JSON.stringify(res.data.insert_files_one.invoice_number)}`
+        );      
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Adding Alfresco upload success details to File Controller App has been failed.");
+        console.log(
+          'There has been a problem with your fetch operation: ',
+          error
+        );
+      });
+  }
 
 function save_doc_fail(
   invoice_id
 ) {
 
-  fetch("http://192.168.5.130:8080/v1/graphql", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-hasura-admin-secret': 'chronoaccesskey001',
-    },
-    body: JSON.stringify({
-      query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 3}) {
-      id
-    }}`,
-    }),
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      console.log('res',res)
-      console.log(
-        `Alfresco upload error details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
-      );      
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ update_invoice_by_pk(pk_columns: {id: "${invoice_id}"}, _set: {uploading_status: 3}) {
+        id
+      }}`,
+      }),
     })
-    .catch((error) => {
-      error_log_to_hasura(invoice_id, "Adding Alfresco upload failed details to File Controller App has been failed.");
-      console.log(
-        'There has been a problem with your fetch operation: ',
-        error
-      );
-    });
-}
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Alfresco upload error details added to hasura: ${JSON.stringify(res.data.update_invoice_by_pk.id)}`
+        );      
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Adding Alfresco upload failed details to File Controller App has been failed.");
+        console.log(
+          'There has been a problem with your fetch operation: ',
+          error
+        );
+      });
+  }
 
 async function auth() {
   // auth with admin
@@ -566,7 +564,7 @@ app.post('/user/login', async (req, res) => {
 
 app.post('/process', async (req, res) => {
   try {      
-    console.log(req.body)
+    console.log(JSON.stringify(req.body))
   } catch (err) {    
     console.log(err)
     res.status(500).send({
