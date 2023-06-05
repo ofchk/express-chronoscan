@@ -354,7 +354,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 
    console.log('sql', sql)
     binds = [invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl];    
-
+console.log('binds', binds)
     options = {
       autoCommit: true,
       outFormat: oracledb.OUT_FORMAT_OBJECT,
