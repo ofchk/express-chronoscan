@@ -352,6 +352,7 @@ async function connect_oracle_staging(invoice_number, vendor_name, site_id, curr
 
    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
 
+   console.log('sql', sql)
     binds = [invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl];    
 
     options = {
@@ -647,7 +648,7 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
                 binds,
                 options);
     console.log("Inserted Line Item Row ID:", result.lastRowid);
-    save_staging(invoice_id, result.lastRowid)
+    //save_staging(invoice_id, result.lastRowid)
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
