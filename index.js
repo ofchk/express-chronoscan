@@ -695,11 +695,11 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const site_code = parseInt(req.body.site_id);
       const gl_date = req.body.gl_date;
       
-      //const al_name = req.body.al_param1;
-      //const al_pass = req.body.al_param2;
+      const al_name = req.body.al_param1;
+      const al_pass = req.body.al_param2;
 
-      const al_name = 'admin';
-      const al_pass = 'admin';
+      // const al_name = 'admin';
+      // const al_pass = 'admin';
 
       // const option = req.body.option;      
 
