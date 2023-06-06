@@ -193,7 +193,7 @@ async function fetch_entity() {
     }
   }
 }
-
+fetch_entity()
 cron.schedule('13 */6 * * *', () => {
   console.log(`Cron is running to fetch vendor`);
   fetch_vendor()
