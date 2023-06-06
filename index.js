@@ -192,12 +192,12 @@ async function fetch_entity() {
   }
 }
 
-cron.schedule('15 * * * *', () => {
+cron.schedule('13 */6 * * *', () => {
   console.log(`Cron is running to fetch vendor`);
   fetch_vendor()
 });
 
-cron.schedule('26 * * * *', () => {
+cron.schedule('* */8 * * *', () => {
   console.log(`Cron is running to fetch entity`);
   fetch_entity()
 });
