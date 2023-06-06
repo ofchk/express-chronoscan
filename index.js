@@ -148,18 +148,20 @@ async function fetch_entity() {
               'x-hasura-admin-secret': 'chronoaccesskey001',
             },
             body: JSON.stringify({
-              query: `mutation { 
-               insert_entity(objects: {
+              query: `
+                mutation Upsert( $update_columns: [entity_update_column!] = [ title, org_id, secret_code ]) {
+                  insert_vendor(objects: {
                   title: "${result.rows[i][1]}", 
                   secret_code: "${result.rows[i][2]}",
                   org_id: "${result.rows[i][0]}"
-                }) {
-                  affected_rows
-                  returning {
-                    id
+                }, 
+                    on_conflict: {constraint: entity_org_id_key, update_columns: $update_columns}) {
+                    affected_rows
+                    returning {
+                      id
+                    }
                   }
-                }
-              }`,
+                }`,
             }),
           })
           .then((res) => res.json())
