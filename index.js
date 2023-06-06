@@ -193,7 +193,6 @@ async function fetch_entity() {
     }
   }
 }
-fetch_entity()
 cron.schedule('13 */6 * * *', () => {
   console.log(`Cron is running to fetch vendor`);
   fetch_vendor()
@@ -492,34 +491,34 @@ function save_doc_fail(
       });
   }
 
-async function auth() {
-  // auth with admin
-  let options = {
-    ldapOpts: {
-      url: 'ldap://192.168.5.10:389',
-    },
-    baseDN: 'DC=moc,DC=com',    
-    //userDn: 'dmssharing@moc.com',
-    //userPassword: 'Tws3857RTY4',
-    userDn: 'dmstest1@moc.com',
-    userPassword: 'tEsT98564TRW',
-    userSearchBase: 'DC=moc,DC=com',
-    username: 'dmstest1@moc.com',
-    usernameAttribute: 'userPrincipalName',
-    attributed: ['dn','sAMAccountName']
-  };
+// async function auth() {
+//   // auth with admin
+//   let options = {
+//     ldapOpts: {
+//       url: 'ldap://192.168.5.10:389',
+//     },
+//     baseDN: 'DC=moc,DC=com',    
+//     //userDn: 'dmssharing@moc.com',
+//     //userPassword: 'Tws3857RTY4',
+//     userDn: 'dmstest1@moc.com',
+//     userPassword: 'tEsT98564TRW',
+//     userSearchBase: 'DC=moc,DC=com',
+//     username: 'dmstest1@moc.com',
+//     usernameAttribute: 'userPrincipalName',
+//     attributed: ['dn','sAMAccountName']
+//   };
 
-  let user = await authenticate(options)
-    //	.then(response =>  response.json())
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-  //console.log(user);
-  //console.log(user.row)
-}
+//   let user = await authenticate(options)
+//     //	.then(response =>  response.json())
+//     .then((data) => {
+//       console.log(data);
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+//   //console.log(user);
+//   //console.log(user.row)
+// }
 
 //auth()
 
@@ -565,9 +564,7 @@ app.post('/user/login', async (req, res) => {
 });
 
 async function connect_oracle_staging_from_chronoscan( invoice_number, lpo, d_number, d_date ) {
-
   let connection;
-
   try {
 
     let sql, binds, options, result;
@@ -697,6 +694,10 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const currency = req.body.currency;
       const site_code = parseInt(req.body.site_id);
       const gl_date = req.body.gl_date;
+      
+      const al_name = req.body.al_param1;
+      const al_pass = req.body.al_param2;
+
       // const option = req.body.option;      
 
       console.log(req.body);
@@ -711,7 +712,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
         hostEcm: 'http://alfresco.moc.com:8080',
       });
 
-      alfrescoJsApi.login('admin', 'admin').then(
+      alfrescoJsApi.login(al_name, al_pass).then(
         function (data) {
           console.log(
             'API called successfully to login into Alfresco Content Services.'
