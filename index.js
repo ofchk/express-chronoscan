@@ -150,7 +150,7 @@ async function fetch_entity() {
             body: JSON.stringify({
               query: `
                 mutation Upsert( $update_columns: [entity_update_column!] = [ title, org_id, secret_code ]) {
-                  insert_vendor(objects: {
+                  insert_entity(objects: {
                   title: "${result.rows[i][1]}", 
                   secret_code: "${result.rows[i][2]}",
                   org_id: "${result.rows[i][0]}"
