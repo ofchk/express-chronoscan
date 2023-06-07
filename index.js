@@ -682,7 +682,7 @@ app.post('/process', async (req, res) => {
     console.log(json[1])
 
     for (let i = 0; i < json[1].line_items.length; i++) {   
-      save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
+      await save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
 
