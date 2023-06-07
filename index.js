@@ -400,9 +400,9 @@ function doc_dicer(itemPath){
       var pdfDicer = require('pdf-dicer');      
       var dicer = new pdfDicer();
       var fullPathFrom = itemPath;
-      console.log('fullPathTo',fullPathFrom)
+      console.log('fullPathFrom',fullPathFrom)
       dicer.on('split', (data, buffer) => {
-        var fullPathTo = path.join(pathTo, data.barcode.id + '.pdf');
+        var fullPathTo = path.join(pathTo, data.barcode.id + '-new.pdf');
         console.log('fullPathTo',fullPathTo)
         fs.writeFile(fullPathTo, buffer);
       }).split(fullPathFrom, function(err, output) {
@@ -411,21 +411,21 @@ function doc_dicer(itemPath){
               console.log(err);
               console.log(output);
             } 
-      });
-    res.json({ 'status': 200, mesaage: 'File upload is completed.' });
-  } catch (err) {        
-    res.status(500).send({
-      message: `Error - Could not upload the file:  ${err} `,
-    });
-  }  
-};
+        });
+      // res.json({ 'status': 200, mesaage: 'File upload is completed.' });
+    } catch (err) {        
+        console.log(`Error - Could not upload the file:  ${err}`)
+    }  
+  };
 
-function save_doc_details(
-  alfresco_url,
-  invoice_id,
-  invoice_number,
-  filename,
-  nodeid
+  doc_dicer(`${__dirname}/uploads/example-scanned-documents.pdf`)
+
+  function save_doc_details(
+    alfresco_url,
+    invoice_id,
+    invoice_number,
+    filename,
+    nodeid
 ) {
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
@@ -781,7 +781,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       console.log(req.body);
 
       // if(option != 3){
-      //   doc_dicer(req.file.path)
+      doc_dicer(req.file.path)
       // }
 
       var AlfrescoApi = require('alfresco-js-api-node');
