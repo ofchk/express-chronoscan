@@ -358,7 +358,9 @@ async function connect_oracle_staging(invoice_id, params ) {
       sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
        console.log('sql', sql)
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date).toLocaleDateString(), new Date(invoice_main[0].gl_date).toLocaleDateString(), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, parseFloat(invoice_items[i].qty), parseFloat(invoice_items[i].price) ];    
+       const qty = parseFloat(invoice_items[i].qty) || 0
+       const price = parseFloat(invoice_items[i].price) || 0
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date).toLocaleDateString(), new Date(invoice_main[0].gl_date).toLocaleDateString(), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price ];    
     console.log('binds', binds)
         options = {
           autoCommit: true,
