@@ -343,43 +343,36 @@ function save_staging(
 
 async function connect_oracle_staging(params ) {
 
-  console.log(params)
   let connection;
 
   try {
 
-//     let sql, binds, options, result;
-//     connection = await oracledb.getConnection(dbConfig);
-//     console.log("connection");
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
 
-//    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
+    const invoice_main = params.data.invoice
+    const invoice_items = params.data.invoice_line_items
 
-//    console.log('sql', sql)
-//     binds = [invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl];    
-// console.log('binds', binds)
-//     options = {
-//       autoCommit: true,
-//       outFormat: oracledb.OUT_FORMAT_OBJECT,
-//       // batchErrors: true,  // continue processing even if there are data errors
-//       // bindDefs: [
-//       //   { type: oracledb.STRING, maxSize: 200 }
+  for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
 
-//       // ]
-//     };
+  }  
+   sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
-// //{ type: oracledb.NUMBER },
+   console.log('sql', sql)
+    binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].currency, invoice_main[0].invoice_entity.title, invoice_main[0].invoice_amount, invoice_main[0].gl_date, invoice_main[0].gl_date, invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, invoice_items[i].qty, invoice_items[i].price ];    
+console.log('binds', binds)
+    options = {
+      autoCommit: true,
+      outFormat: oracledb.OUT_FORMAT_OBJECT,      
+    };
 
-//     //result = await connection.execute(sql, binds,  options);
-
-//     result = await connection.execute(
-//                 sql,
-//                 binds,
-//                 options);
-//     console.log("Inserted Row ID:", result.lastRowid);
-//     save_staging(invoice_id, result.lastRowid)
-
-// result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
-// console.log("Fetch: ", result2.rows)
+    result = await connection.execute(
+                sql,
+                binds,
+                options);
+    console.log("Inserted Row ID:", result.lastRowid);
+    save_staging(invoice_id, result.lastRowid)
 
   } catch (err) {
     error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
@@ -394,6 +387,10 @@ async function connect_oracle_staging(params ) {
     }
   }
 }
+
+// result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
+// console.log("Fetch: ", result2.rows)
+
 
 function doc_dicer(itemPath){
   try {            
@@ -491,37 +488,6 @@ function save_doc_fail(
         );
       });
   }
-
-// async function auth() {
-//   // auth with admin
-//   let options = {
-//     ldapOpts: {
-//       url: 'ldap://192.168.5.10:389',
-//     },
-//     baseDN: 'DC=moc,DC=com',    
-//     //userDn: 'dmssharing@moc.com',
-//     //userPassword: 'Tws3857RTY4',
-//     userDn: 'dmstest1@moc.com',
-//     userPassword: 'tEsT98564TRW',
-//     userSearchBase: 'DC=moc,DC=com',
-//     username: 'dmstest1@moc.com',
-//     usernameAttribute: 'userPrincipalName',
-//     attributed: ['dn','sAMAccountName']
-//   };
-
-//   let user = await authenticate(options)
-//     //	.then(response =>  response.json())
-//     .then((data) => {
-//       console.log(data);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-//   //console.log(user);
-//   //console.log(user.row)
-// }
-
-//auth()
 
 app.post('/user/login', async (req, res) => {
   try {      
@@ -714,10 +680,6 @@ app.post('/process', async (req, res) => {
     console.log('req',req.body)
     console.log(json[0])
     console.log(json[1])
-    
-    // DESCRIPTION
-    // QUANTITY
-    // UNIT_SELLING_PRICE
 
     for (let i = 0; i < json[1].line_items.length; i++) {   
       save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
