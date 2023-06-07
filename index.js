@@ -674,7 +674,7 @@ function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_
         'x-hasura-admin-secret': 'chronoaccesskey001',
       },
       body: JSON.stringify({
-        query: `mutation{ invoice_line_items(object: 
+        query: `mutation{ insert_invoice_line_items_one(object: 
         {
           invoice_number: "${invoice_number}", 
           LPO: "${LPO}",
