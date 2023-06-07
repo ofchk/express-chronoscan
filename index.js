@@ -355,24 +355,24 @@ async function connect_oracle_staging(invoice_id, params ) {
     const invoice_items = params.data.invoice_line_items
 
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
+       console.log('sql', sql)
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].currency, invoice_main[0].invoice_entity.title, invoice_main[0].invoice_amount, invoice_main[0].gl_date, invoice_main[0].gl_date, invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, invoice_items[i].qty, invoice_items[i].price ];    
+    console.log('binds', binds)
+        options = {
+          autoCommit: true,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,      
+        };
+
+        result = await connection.execute(
+                    sql,
+                    binds,
+                    options);
+        console.log("Inserted Row ID:", result.lastRowid);
+        save_staging(invoice_id, result.lastRowid)
   }  
-   sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
-
-   console.log('sql', sql)
-    binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].currency, invoice_main[0].invoice_entity.title, invoice_main[0].invoice_amount, invoice_main[0].gl_date, invoice_main[0].gl_date, invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, invoice_items[i].qty, invoice_items[i].price ];    
-console.log('binds', binds)
-    options = {
-      autoCommit: true,
-      outFormat: oracledb.OUT_FORMAT_OBJECT,      
-    };
-
-    result = await connection.execute(
-                sql,
-                binds,
-                options);
-    console.log("Inserted Row ID:", result.lastRowid);
-    save_staging(invoice_id, result.lastRowid)
+   
 
   } catch (err) {
     error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
