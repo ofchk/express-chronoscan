@@ -341,41 +341,42 @@ function save_staging(
       });
   }
 
-async function connect_oracle_staging(invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, contentUrl, invoice_id ) {
+async function connect_oracle_staging(params ) {
 
+  console.log(params)
   let connection;
 
   try {
 
-    let sql, binds, options, result;
-    connection = await oracledb.getConnection(dbConfig);
-    console.log("connection");
+//     let sql, binds, options, result;
+//     connection = await oracledb.getConnection(dbConfig);
+//     console.log("connection");
 
-   sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
+//    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
 
-   console.log('sql', sql)
-    binds = [invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl];    
-console.log('binds', binds)
-    options = {
-      autoCommit: true,
-      outFormat: oracledb.OUT_FORMAT_OBJECT,
-      // batchErrors: true,  // continue processing even if there are data errors
-      // bindDefs: [
-      //   { type: oracledb.STRING, maxSize: 200 }
+//    console.log('sql', sql)
+//     binds = [invoice_number, vendor_name, site_id, currency, entity_name, amount, gl_date, gl_date, contentUrl];    
+// console.log('binds', binds)
+//     options = {
+//       autoCommit: true,
+//       outFormat: oracledb.OUT_FORMAT_OBJECT,
+//       // batchErrors: true,  // continue processing even if there are data errors
+//       // bindDefs: [
+//       //   { type: oracledb.STRING, maxSize: 200 }
 
-      // ]
-    };
+//       // ]
+//     };
 
-//{ type: oracledb.NUMBER },
+// //{ type: oracledb.NUMBER },
 
-    //result = await connection.execute(sql, binds,  options);
+//     //result = await connection.execute(sql, binds,  options);
 
-    result = await connection.execute(
-                sql,
-                binds,
-                options);
-    console.log("Inserted Row ID:", result.lastRowid);
-    save_staging(invoice_id, result.lastRowid)
+//     result = await connection.execute(
+//                 sql,
+//                 binds,
+//                 options);
+//     console.log("Inserted Row ID:", result.lastRowid);
+//     save_staging(invoice_id, result.lastRowid)
 
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
@@ -722,6 +723,65 @@ app.post('/process', async (req, res) => {
       save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
+
+//####### Get Invoice Full data from Hasura
+
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `query{ 
+          invoice(where: {invoice_number: {_eq: "${json[0].invoice}"}}) {
+            id
+            invoice_number
+            invoice_amount
+            gl_date
+            currency
+            invoice_vendor{
+              name
+              site_code
+            }
+            invoice_entity{
+             title 
+            }
+            invoice_files{
+              alfresco_url
+            }
+          }
+          invoice_line_items(where: {invoice_number: {_eq: "${json[0].invoice}"}}) {
+            id
+            description
+            qty
+            price
+            LPO
+            delivery_number
+            delivery_date
+            date_of_supply
+          }
+        }`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Fetch Invoice Data from hasura successfully`
+        );    
+
+        const oracle =  connect_oracle_staging(res)        
+          
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Fetch Invoice Data from hasura has been failed.");
+        console.log(
+          'There has been a problem with your Fetch Invoice Data from hasura operation: ',
+          error
+        );
+      });
+
     // connect_oracle_staging_from_chronoscan(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply )
     // connect_oracle_staging_item_list(json[0].invoice, json[1].line_items[0].item, json[1].line_items[0].unit, json[1].line_items[0].qty, json[1].line_items[0].rate, json[1].line_items[0].gross, json[1].line_items[0].vat)
   } catch (err) {    
@@ -793,7 +853,8 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               );
               console.log(contentUrl);
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
-              const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)
+              
+              //const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)
               
               result.push({
                 status: 200,
