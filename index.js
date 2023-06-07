@@ -666,6 +666,46 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
   }
 }
 
+function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_date, date_of_supply, description, qty, price ) {
+    fetch("http://192.168.5.130:8080/v1/graphql", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-hasura-admin-secret': 'chronoaccesskey001',
+      },
+      body: JSON.stringify({
+        query: `mutation{ invoice_line_items(object: 
+        {
+          invoice_number: "${invoice_number}", 
+          LPO: "${LPO}",
+          delivery_number: "${delivery_number}",
+          delivery_date: "${delivery_date}",
+          date_of_supply: "${date_of_supply}",
+          description: "${description}",
+          qty: "${qty}",
+          price: "${price}"
+        }) {
+          id
+          
+        }}`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log('res',res)
+        console.log(
+          `Adding Invoice Line Item added to hasura`
+        );            
+          
+      })
+      .catch((error) => {
+        error_log_to_hasura(invoice_id, "Adding Invoice Line Item to File Controller App has been failed.");
+        console.log(
+          'There has been a problem with your Adding Invoice Line Item operation: ',
+          error
+        );
+      });
+  }
 
 app.post('/process', async (req, res) => {
   try {      
@@ -673,8 +713,15 @@ app.post('/process', async (req, res) => {
     console.log('req',req.body)
     console.log(json[0])
     console.log(json[1])
-    connect_oracle_staging_from_chronoscan(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply )
-    connect_oracle_staging_item_list(json[0].invoice, json[1].line_items[0].item, json[1].line_items[0].unit, json[1].line_items[0].qty, json[1].line_items[0].rate, json[1].line_items[0].gross, json[1].line_items[0].vat)
+// DESCRIPTION
+// QUANTITY
+// UNIT_SELLING_PRICE
+
+
+save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[0].item, json[1].line_items[0].qty, json[1].line_items[0].rate)
+
+    // connect_oracle_staging_from_chronoscan(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply )
+    // connect_oracle_staging_item_list(json[0].invoice, json[1].line_items[0].item, json[1].line_items[0].unit, json[1].line_items[0].qty, json[1].line_items[0].rate, json[1].line_items[0].gross, json[1].line_items[0].vat)
   } catch (err) {    
     console.log('error',err)
     res.status(500).send({
