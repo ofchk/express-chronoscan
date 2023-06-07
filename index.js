@@ -341,8 +341,8 @@ function save_staging(
       });
   }
 
-async function connect_oracle_staging(params ) {
-
+async function connect_oracle_staging(invoice_id, params ) {
+  console.log(invoice_id)
   let connection;
 
   try {
@@ -733,7 +733,7 @@ app.post('/process', async (req, res) => {
           `Fetch Invoice Data from hasura successfully`
         );    
 
-        const oracle =  connect_oracle_staging(res)        
+        const oracle =  connect_oracle_staging(res.data.invoice[0].id,res)        
           
       })
       .catch((error) => {
