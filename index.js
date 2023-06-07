@@ -398,12 +398,15 @@ function doc_dicer(itemPath){
   try {            
       console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
+      const PDFMerger = require('pdf-merger-js');
+      var merger = new PDFMerger();
       var dicer = new pdfDicer();
       var fullPathFrom = itemPath;
       console.log('fullPathFrom',fullPathFrom)
       dicer.on('split', (data, buffer) => {
-        var fullPathTo = path.join(pathTo, data.barcode.id + '-new.pdf');
+        var fullPathTo = path.join(pathTo, data.barcode.id + '.pdf');
         console.log('fullPathTo',fullPathTo)
+        merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
       }).split(fullPathFrom, function(err, output) {
             if (err){
@@ -412,6 +415,7 @@ function doc_dicer(itemPath){
               console.log(output);
             } 
         });
+      merger.save('merged.pdf'); 
       // res.json({ 'status': 200, mesaage: 'File upload is completed.' });
     } catch (err) {        
         console.log(`Error - Could not upload the file:  ${err}`)
