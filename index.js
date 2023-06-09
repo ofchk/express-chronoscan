@@ -526,7 +526,7 @@ app.post('/user/login', async (req, res) => {
         })
         .catch((err) => {
           console.log(err);
-          res.json({ 'status': 200, mesaage: err });
+          res.json({ 'status': 401, mesaage: err });
         });
 
     
