@@ -526,7 +526,7 @@ app.post('/user/login', async (req, res) => {
         })
         .catch((err) => {
           console.log(err);
-          res.json({ mesaage: 'LDAP Auth Error' });
+          res.json({ mesaage: err });
         });
 
     
