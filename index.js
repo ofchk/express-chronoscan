@@ -514,7 +514,7 @@ app.post('/user/login', async (req, res) => {
         username: email,
         usernameAttribute: 'userPrincipalName',
         attributed: ['dn','sAMAccountName'],
-        userSearchBase: 'OU=dmsgroup,OU=MOG_CORP_Finance,OU=MOG_CORP_WITHOUT-USB,OU=MOG-CORP-GROUP,DC=moc,DC=com',
+        groupSearchBase: 'OU=dmsgroup,OU=MOG_CORP_Finance,OU=MOG_CORP_WITHOUT-USB,OU=MOG-CORP-GROUP,DC=moc,DC=com',
 
       };
 
