@@ -422,7 +422,7 @@ function doc_dicer(itemPath){
     }  
   };
 
-  doc_dicer(`${__dirname}/uploads/example-scanned-documents.pdf`)
+  //doc_dicer(`${__dirname}/uploads/example-scanned-documents.pdf`)
 
   function save_doc_details(
     alfresco_url,
