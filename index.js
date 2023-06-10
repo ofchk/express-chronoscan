@@ -394,6 +394,24 @@ async function connect_oracle_staging(invoice_id, params ) {
 // console.log("Fetch: ", result2.rows)
 
 
+
+
+async function modifyPdf(fullPathTo, endpage, invoice_number) {  
+  const { PDFDocument } = require('pdf-lib');
+  const pdfData = await fs.readFile(fullPathTo);
+  const pdfDoc = await PDFDocument.load(pdfData);
+
+  const pages = pdfDoc.getPages()
+  pdfDoc.removePage(0)
+  pdfDoc.removePage(endpage)
+  
+  var fullPathToNoBarcode = path.join(pathTo, 'final_'+ invoice_number + '.pdf');
+  const pdfBytes = await pdfDoc.save()
+
+  fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
+}
+
+
 async function doc_dicer(invoice_number, itemPath) {
   try {            
       // console.log(itemPath) 
@@ -413,23 +431,7 @@ async function doc_dicer(invoice_number, itemPath) {
         // merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
         if(count === 2){
-          // const doc = new jsPDF(fullPathTo);
-          // var pageCount = doc.internal.getNumberOfPages();
-          // doc.deletePage(1)
-          // doc.deletePage(pageCount)
-          // console.log(pageCount)
-            const { PDFDocument } = require('pdf-lib');
-            const pdfData = await fs.readFile(`${__dirname}/static/25971111.pdf`);
-            const pdfDoc = await PDFDocument.load(pdfData);
-
-            const pages = pdfDoc.getPages()
-            pdfDoc.removePage(0)
-            pdfDoc.removePage(data.pages)
-            
-            var fullPathToNoBarcode = path.join(pathTo, 'final_'+ invoice_number + '.pdf');
-            const pdfBytes = await pdfDoc.save()
-
-            fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
+          modifyPdf(fullPathTo, data.pages, invoice_number)
         }
 
         console.log(data)
@@ -449,24 +451,6 @@ async function doc_dicer(invoice_number, itemPath) {
         console.log(`Error - Could not upload the file:  ${err}`)
     }  
   };
-
-
-async function modifyPdf() {  
-  const { PDFDocument } = require('pdf-lib');
-  const pdfData = await fs.readFile(`${__dirname}/static/25971111.pdf`);
-  const pdfDoc = await PDFDocument.load(pdfData);
-
-  const pages = pdfDoc.getPages()
-  pdfDoc.removePage(0)
-  
-  var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+ 'abcd' + '.pdf');
-  const pdfBytes = await pdfDoc.save()
-
-  fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
-}
-
-
-  //modifyPdf()
 
 
   function save_doc_details(
