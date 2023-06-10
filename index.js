@@ -424,12 +424,12 @@ async function doc_dicer(invoice_number, itemPath) {
       var fullPathFrom = itemPath;
       // console.log('fullPathFrom',fullPathFrom)
       let count = 1
-      dicer.on('split', (data, buffer) => {
+      await dicer.on('split', async (data, buffer) => {
         console.log('count',count)        
         var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)        
         // merger.add(fullPathTo)
-        fs.writeFile(fullPathTo, buffer);
+        await fs.writeFile(fullPathTo, buffer);
         if(count === 2){
           modifyPdf(fullPathTo, data.pages, invoice_number)
         }
