@@ -398,7 +398,7 @@ function doc_dicer(invoice_number, itemPath) {
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
-      const { jsPDF } = require("jspdf");
+      // const { jsPDF } = require("jspdf");
 
       // const PDFMerger = require('pdf-merger-js');
       // var merger = new PDFMerger();
