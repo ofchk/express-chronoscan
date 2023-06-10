@@ -403,7 +403,7 @@ function doc_dicer(invoice_number, itemPath){
       var dicer = new pdfDicer();
       var fullPathFrom = itemPath;
       console.log('fullPathFrom',fullPathFrom)
-      const count = 1
+      let count = 1
       dicer.on('split', (data, buffer) => {
         console.log(count)
         var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
