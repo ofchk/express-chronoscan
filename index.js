@@ -447,6 +447,7 @@ function doc_dicer(invoice_number, itemPath) {
 
 
 async function modifyPdf() {  
+  const { PDFDocument } = require('pdf-lib');
   const pdfData = await fs.readFile(`${__dirname}/static/25971111.pdf`);
   const pdfDoc = await PDFDocument.load(pdfData);
 
