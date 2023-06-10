@@ -398,6 +398,8 @@ function doc_dicer(invoice_number, itemPath){
   try {            
       console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
+      const { jsPDF } = require("jspdf");
+
       // const PDFMerger = require('pdf-merger-js');
       // var merger = new PDFMerger();
       var dicer = new pdfDicer();
@@ -405,9 +407,16 @@ function doc_dicer(invoice_number, itemPath){
       console.log('fullPathFrom',fullPathFrom)
       let count = 1
       dicer.on('split', (data, buffer) => {
-        console.log(count)
+        console.log(count)        
         var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)
+        if(count == 2){
+          const doc = new jsPDF(fullPathTo);
+          var pageCount = doc.internal.getNumberOfPages();
+          doc.deletePage(1)
+          doc.deletePage(pageCount)
+          console.log(pageCount)
+        }
         // merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
         console.log(data)
