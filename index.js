@@ -394,7 +394,7 @@ async function connect_oracle_staging(invoice_id, params ) {
 // console.log("Fetch: ", result2.rows)
 
 
-function doc_dicer(invoice_number, itemPath) {
+async function doc_dicer(invoice_number, itemPath) {
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -419,12 +419,17 @@ function doc_dicer(invoice_number, itemPath) {
           // doc.deletePage(pageCount)
           // console.log(pageCount)
             const { PDFDocument } = require('pdf-lib');
-            const existingPdfBytes = fetch('uploads/example-scanned-documents.pdf').then(res => res.arrayBuffer())
-            const pdfDoc =  PDFDocument.load(buffer)
+            const pdfData = await fs.readFile(`${__dirname}/static/25971111.pdf`);
+            const pdfDoc = await PDFDocument.load(pdfData);
+
+            const pages = pdfDoc.getPages()
             pdfDoc.removePage(0)
-            pdfDoc.removePage(1) 
-            var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+invoice_number + '.pdf');
-            fs.writeFileSync(fullPathToNoBarcode,  pdfDoc.save());
+            pdfDoc.removePage(data.pages)
+            
+            var fullPathToNoBarcode = path.join(pathTo, 'final_'+ invoice_number + '.pdf');
+            const pdfBytes = await pdfDoc.save()
+
+            fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
         }
 
         console.log(data)
@@ -461,7 +466,7 @@ async function modifyPdf() {
 }
 
 
-  modifyPdf()
+  //modifyPdf()
 
 
   function save_doc_details(
