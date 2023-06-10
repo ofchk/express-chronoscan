@@ -447,7 +447,7 @@ function doc_dicer(invoice_number, itemPath) {
 
 
 async function modifyPdf() {  
-  const pdfData = await fs.readFile('uploads/invoice_to_process/25971111.pdf');
+  const pdfData = await fs.readFile(`${__dirname}/uploads/invoice_to_process/25971111.pdf`);
   const pdfDoc = await PDFDocument.load(pdfData);
 
   const pages = pdfDoc.getPages()
