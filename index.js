@@ -445,15 +445,24 @@ function doc_dicer(invoice_number, itemPath) {
     }  
   };
 
-  //doc_dicer('ABCD', 'uploads/example-scanned-documents.pdf')
-const { PDFDocument } = require('pdf-lib');
-const existingPdfBytes =  fetch('uploads/example-scanned-documents.pdf').then(res => res.arrayBuffer())
-const pdfDoc =  PDFDocument.load(existingPdfBytes)
-console.log('pdfDoc',pdfDoc)
-pdfDoc.removePage(0)
-pdfDoc.removePage(1) 
-var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+invoice_number + '.pdf');
-fs.writeFileSync(fullPathToNoBarcode,  pdfDoc.save());
+
+async function modifyPdf() {
+  const url = 'uploads/example-scanned-documents.pdf'
+  const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
+
+  const pdfDoc = await PDFDocument.load(existingPdfBytes)
+
+  const pages = pdfDoc.getPages()
+  pdfDoc.removePage(0)
+  
+  var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+invoice_number + '.pdf');
+  fs.writeFileSync(fullPathToNoBarcode,  pdfDoc.save());
+
+  const pdfBytes = await pdfDoc.save()
+}
+
+
+  modifyPdf()
 
 
   function save_doc_details(
