@@ -21,6 +21,7 @@
     "node-fetch": "^2.6.9",
     "oracledb": "^5.5.0",
     "pdf-dicer": "^0.4.4",
+    "pdf-lib": "^1.17.1",
     "sequelize": "^6.31.1"
   }
 }
