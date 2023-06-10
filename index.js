@@ -403,13 +403,16 @@ function doc_dicer(invoice_number, itemPath){
       var dicer = new pdfDicer();
       var fullPathFrom = itemPath;
       console.log('fullPathFrom',fullPathFrom)
+      const count = 1
       dicer.on('split', (data, buffer) => {
-        var fullPathTo = path.join(pathTo, data.pages+invoice_number + '.pdf');
+        console.log(count)
+        var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)
         // merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
         console.log(data)
         console.log(buffer)
+        count++
       }).split(fullPathFrom, function(err, output) {
             if (err){
               console.log(`Something went wrong: ${err}`);
