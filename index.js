@@ -446,11 +446,9 @@ function doc_dicer(invoice_number, itemPath) {
   };
 
 
-async function modifyPdf() {
-  const url = `${__dirname}/uploads/example-scanned-documents.pdf`
-  const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
-
-  const pdfDoc = await PDFDocument.load(existingPdfBytes)
+async function modifyPdf() {  
+  const pdfData = await fs.readFile('/uploads/example-scanned-documents.pdf');
+  const pdfDoc = await PDFDocument.load(pdfData);
 
   const pages = pdfDoc.getPages()
   pdfDoc.removePage(0)
