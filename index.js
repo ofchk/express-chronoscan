@@ -398,16 +398,19 @@ function doc_dicer(invoice_number, itemPath){
   try {            
       console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
-      const PDFMerger = require('pdf-merger-js');
-      var merger = new PDFMerger();
+      // const PDFMerger = require('pdf-merger-js');
+      // var merger = new PDFMerger();
       var dicer = new pdfDicer();
       var fullPathFrom = itemPath;
       console.log('fullPathFrom',fullPathFrom)
-      dicer.on('split', (data, buffer) => {
-        var fullPathTo = path.join(pathTo, invoice_number + '.pdf');
+      dicer.on('split', (data, buffer, index) => {
+        var fullPathTo = path.join(pathTo, index+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)
-        merger.add(fullPathTo)
+        // merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
+        console.log(data)
+        console.log(buffer)
+        console.log(index)
       }).split(fullPathFrom, function(err, output) {
             if (err){
               console.log(`Something went wrong: ${err}`);
@@ -415,14 +418,14 @@ function doc_dicer(invoice_number, itemPath){
               console.log(output);
             } 
         });
-      merger.save('merged.pdf'); 
+      // merger.save('merged.pdf'); 
       // res.json({ 'status': 200, mesaage: 'File upload is completed.' });
     } catch (err) {        
         console.log(`Error - Could not upload the file:  ${err}`)
     }  
   };
 
-  
+  doc_dicer('ABCD', 'uploads/example-scanned-documents.pdf')
 
   function save_doc_details(
     alfresco_url,
