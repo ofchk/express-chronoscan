@@ -394,7 +394,7 @@ async function connect_oracle_staging(invoice_id, params ) {
 // console.log("Fetch: ", result2.rows)
 
 
-function doc_dicer(invoice_number, itemPath){
+function async doc_dicer(invoice_number, itemPath){
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -409,21 +409,29 @@ function doc_dicer(invoice_number, itemPath){
       dicer.on('split', (data, buffer) => {
         console.log('count',count)        
         var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
-        console.log('fullPathTo',fullPathTo)
-        if(count === 2){
-          const doc = new jsPDF(fullPathTo);
-          var pageCount = doc.internal.getNumberOfPages();
-          doc.deletePage(1)
-          doc.deletePage(pageCount)
-          console.log(pageCount)
-        }
+        console.log('fullPathTo',fullPathTo)        
         // merger.add(fullPathTo)
-        fs.writeFile(fullPathTo, buffer);
+        await fs.writeFile(fullPathTo, buffer);
+        if(count === 2){
+          // const doc = new jsPDF(fullPathTo);
+          // var pageCount = doc.internal.getNumberOfPages();
+          // doc.deletePage(1)
+          // doc.deletePage(pageCount)
+          // console.log(pageCount)
+            const { PDFDocument } = require('pdf-lib');
+            //const existingPdfBytes = await fetch(fullPathTo).then(res => res.arrayBuffer())
+            const pdfDoc = await PDFDocument.load(buffer)
+            pdfDoc.removePage(0)
+            pdfDoc.removePage(data.pages) 
+            var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+invoice_number + '.pdf');
+            fs.writeFileSync(fullPathToNoBarcode, await pdfDoc.save());
+        }
+
         console.log(data)
         console.log(buffer)
         count = count+1
       }).split(fullPathFrom, function(err, output) {
-          console.log(output)
+          console.log('output',output)
             if (err){
               console.log(`Something went wrong: ${err}`);
               console.log(err);
