@@ -402,7 +402,7 @@ async function modifyPdf(fullPathTo, endpage, invoice_number) {
   const pdfDoc = await PDFDocument.load(pdfData);
 
   const pages = pdfDoc.getPages()
-  console.log(pages)
+  // console.log(pages)
   pdfDoc.removePage(endpage-1)
   pdfDoc.removePage(0)
   
