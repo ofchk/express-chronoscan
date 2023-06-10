@@ -27,7 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
-var pathTo = `${__dirname}/uploads`;
+var pathTo = `${__dirname}/uploads/invoice_to_process`;
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('pages/index.html'));
@@ -394,7 +394,7 @@ async function connect_oracle_staging(invoice_id, params ) {
 // console.log("Fetch: ", result2.rows)
 
 
-function doc_dicer(itemPath){
+function doc_dicer(invoice_number, itemPath){
   try {            
       console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -404,7 +404,7 @@ function doc_dicer(itemPath){
       var fullPathFrom = itemPath;
       console.log('fullPathFrom',fullPathFrom)
       dicer.on('split', (data, buffer) => {
-        var fullPathTo = path.join(pathTo, data.barcode.id + '.pdf');
+        var fullPathTo = path.join(pathTo, invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)
         merger.add(fullPathTo)
         fs.writeFile(fullPathTo, buffer);
@@ -422,7 +422,7 @@ function doc_dicer(itemPath){
     }  
   };
 
-  doc_dicer(`${__dirname}/uploads/example-scanned-documents.pdf`)
+  
 
   function save_doc_details(
     alfresco_url,
@@ -786,9 +786,9 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
       console.log(req.body);
 
-      // if(option != 3){
-      doc_dicer(req.file.path)
-      // }
+      if(option != 3){
+        doc_dicer(invoice_number, req.file.path)
+      }
 
       var AlfrescoApi = require('alfresco-js-api-node');
       var alfrescoJsApi = new AlfrescoApi({
