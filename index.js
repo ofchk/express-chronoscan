@@ -447,7 +447,7 @@ function doc_dicer(invoice_number, itemPath) {
 
 
 async function modifyPdf() {
-  const url = 'uploads/example-scanned-documents.pdf'
+  const url = `${__dirname}/uploads/example-scanned-documents.pdf`
   const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
 
   const pdfDoc = await PDFDocument.load(existingPdfBytes)
