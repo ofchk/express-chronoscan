@@ -782,7 +782,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       // const al_name = 'admin';
       // const al_pass = 'admin';
 
-      // const option = req.body.option;      
+      const option = req.body.option;      
 
       console.log(req.body);
 
