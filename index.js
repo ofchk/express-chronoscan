@@ -412,7 +412,7 @@ function doc_dicer(invoice_number, itemPath){
         fs.writeFile(fullPathTo, buffer);
         console.log(data)
         console.log(buffer)
-        count++
+        count = count+1
       }).split(fullPathFrom, function(err, output) {
             if (err){
               console.log(`Something went wrong: ${err}`);
@@ -427,7 +427,7 @@ function doc_dicer(invoice_number, itemPath){
     }  
   };
 
-  doc_dicer('ABCD', 'uploads/example-scanned-documents.pdf')
+  //doc_dicer('ABCD', 'uploads/example-scanned-documents.pdf')
 
   function save_doc_details(
     alfresco_url,
