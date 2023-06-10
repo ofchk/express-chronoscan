@@ -420,11 +420,11 @@ async function doc_dicer(invoice_number, itemPath) {
           // console.log(pageCount)
             const { PDFDocument } = require('pdf-lib');
             //const existingPdfBytes = await fetch(fullPathTo).then(res => res.arrayBuffer())
-            const pdfDoc = await PDFDocument.load(buffer)
+            const pdfDoc =  PDFDocument.load(buffer)
             pdfDoc.removePage(0)
             pdfDoc.removePage(data.pages) 
             var fullPathToNoBarcode = path.join(pathTo, 'NoBarcode'+invoice_number + '.pdf');
-            fs.writeFileSync(fullPathToNoBarcode, await pdfDoc.save());
+            fs.writeFileSync(fullPathToNoBarcode,  pdfDoc.save());
         }
 
         console.log(data)
