@@ -394,7 +394,7 @@ async function connect_oracle_staging(invoice_id, params ) {
 // console.log("Fetch: ", result2.rows)
 
 
-function async doc_dicer(invoice_number, itemPath){
+async function doc_dicer(invoice_number, itemPath){
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
