@@ -414,6 +414,7 @@ function doc_dicer(invoice_number, itemPath){
         console.log(buffer)
         count = count+1
       }).split(fullPathFrom, function(err, output) {
+          console.log(output)
             if (err){
               console.log(`Something went wrong: ${err}`);
               console.log(err);
