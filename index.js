@@ -411,7 +411,7 @@ async function doc_dicer(invoice_number, itemPath) {
         var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)        
         // merger.add(fullPathTo)
-        await fs.writeFile(fullPathTo, buffer);
+        fs.writeFile(fullPathTo, buffer);
         if(count === 2){
           // const doc = new jsPDF(fullPathTo);
           // var pageCount = doc.internal.getNumberOfPages();
