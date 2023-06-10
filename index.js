@@ -403,6 +403,7 @@ async function modifyPdf(fullPathTo, endpage, invoice_number) {
 
   const pages = pdfDoc.getPages()
   console.log(pages)
+  pdfDoc.removePage(endpage-1)
   pdfDoc.removePage(0)
   
   var fullPathToNoBarcode = path.join(pathTo, 'final_'+ invoice_number + '.pdf');
