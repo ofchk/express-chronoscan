@@ -403,7 +403,7 @@ async function connect_oracle_staging(invoice_id, params ) {
        console.log('sql', sql)
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price ];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price ];    
     console.log('binds', binds)
         options = {
           autoCommit: true,
