@@ -357,7 +357,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
 
     console.log('sql', sql)
 
-    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), contentUrl ];    
+    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl ];    
       options = {
         autoCommit: true,
         outFormat: oracledb.OUT_FORMAT_OBJECT,      
