@@ -27,7 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
-var pathTo = `${__dirname}/uploads/invoice_to_process`;
+var pathTo = `/mnt/windows`;
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('pages/index.html'));
@@ -193,6 +193,7 @@ async function fetch_entity() {
     }
   }
 }
+
 cron.schedule('13 */6 * * *', () => {
   console.log(`Cron is running to fetch vendor`);
   fetch_vendor()
@@ -340,6 +341,48 @@ function save_staging(
         );
       });
   }
+
+
+async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id) {
+  console.log(invoice_id)
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10)";
+
+    console.log('sql', sql)
+
+    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), contentUrl ];    
+      options = {
+        autoCommit: true,
+        outFormat: oracledb.OUT_FORMAT_OBJECT,      
+      };
+
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      save_staging(invoice_id, result.lastRowid)
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding Only Storage invoice data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
 
 async function connect_oracle_staging(invoice_id, params ) {
   console.log(invoice_id)
@@ -814,11 +857,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
       const option = req.body.options;      
 
-      console.log(req.body);
-
-      if(option != 3){
-        doc_dicer(invoice_number, req.file.path)
-      }
+      console.log(req.body);      
 
       var AlfrescoApi = require('alfresco-js-api-node');
       var alfrescoJsApi = new AlfrescoApi({
@@ -856,7 +895,9 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               console.log(contentUrl);
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               
-              //const oracle =  connect_oracle_staging(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)
+              if(option == 3){
+                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)              
+              }
               
               result.push({
                 status: 200,
@@ -889,7 +930,11 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               });
             }
           );
-    res.json({ 'status': 200, mesaage: 'File upload is completed.' });
+
+          if(option != 3){
+            doc_dicer(invoice_number, req.file.path)
+          }
+      res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
     save_doc_fail(req.body.invoice_id)
     error_log_to_hasura(invoice_id, "Upload document to server has been failed.");
