@@ -786,7 +786,7 @@ app.post('/process', async (req, res) => {
               title
             }
             invoice_vendor{
-              name
+              supplier_name
               site_code
             }
             invoice_entity{
