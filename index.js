@@ -75,11 +75,12 @@ async function fetch_vendor() {
             body: JSON.stringify({
               query: `mutation Upsert( $update_columns: [vendor_update_column!] = [ name, number, supplier_name, supplier_number, site_code, org_id ]) {
                   insert_vendor(objects: {
-                    name: "${result.rows[i][1]}",
                     number: "${result.rows[i][0]}",
-                    supplier_name: "${result.rows[i][3]}", 
+                    name: "${result.rows[i][1]}",
                     supplier_number: "${result.rows[i][2]}", 
+                    supplier_name: "${result.rows[i][3]}", 
                     site_code: "${result.rows[i][5]}",
+                    site_code_original: "${result.rows[i][6]}",
                     org_id: "${result.rows[i][7]}",
                   }, 
                     on_conflict: {constraint: vendor_org_id_supplier_number_site_code_key, update_columns: $update_columns}) {
@@ -345,7 +346,7 @@ function save_staging(
   }
 
 
-async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id) {
+async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code) {
   console.log(invoice_id)
   let connection;
 
@@ -355,11 +356,11 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
 
-    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, VENDOR_ID, ORG_ID) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11)";
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, VENDOR_ID, ORG_ID, VENDOR_CODE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12)";
 
     console.log('sql', sql)
 
-    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, vendor_number, entity_org_id ];    
+    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, vendor_number, entity_org_id, vendor_code ];    
       options = {
         autoCommit: true,
         outFormat: oracledb.OUT_FORMAT_OBJECT,      
@@ -857,6 +858,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const al_pass = req.body.al_param2;
 
       const vendor_number = req.body.vendor_number;
+      const vendor_code = req.body.vendor_code;
       const entity_org_id = req.body.entity_org_id;
 
       // const al_name = 'admin';
@@ -903,7 +905,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               
               if(option == 3){
-                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id)              
+                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code)              
               }
               
               result.push({
