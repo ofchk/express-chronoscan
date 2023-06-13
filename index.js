@@ -122,6 +122,8 @@ async function fetch_vendor() {
   }
 }
 
+fetch_vendor()
+
 async function fetch_entity() {
   let connection;
   try {
