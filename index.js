@@ -343,7 +343,7 @@ function save_staging(
   }
 
 
-async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id) {
+async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id) {
   console.log(invoice_id)
   let connection;
 
@@ -353,11 +353,11 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
 
-    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9)";
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, VENDOR_ID, ORG_ID) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11)";
 
     console.log('sql', sql)
 
-    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl ];    
+    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, vendor_number, entity_org_id ];    
       options = {
         autoCommit: true,
         outFormat: oracledb.OUT_FORMAT_OBJECT,      
@@ -398,12 +398,12 @@ async function connect_oracle_staging(invoice_id, params ) {
     const invoice_items = params.data.invoice_line_items
 
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15)";
 
        console.log('sql', sql)
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price ];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.vendor_number, invoice_main[0].invoice_entity.org_id];    
     console.log('binds', binds)
         options = {
           autoCommit: true,
@@ -786,11 +786,13 @@ app.post('/process', async (req, res) => {
               title
             }
             invoice_vendor{
+              supplier_number
               supplier_name
               site_code
             }
             invoice_entity{
              title 
+             org_id
             }
             invoice_files{
               alfresco_url
@@ -820,7 +822,7 @@ app.post('/process', async (req, res) => {
           
       })
       .catch((error) => {
-        error_log_to_hasura(invoice_id, "Fetch Invoice Data from hasura has been failed.");
+        // error_log_to_hasura(invoice_id, "Fetch Invoice Data from hasura has been failed.");
         console.log(
           'There has been a problem with your Fetch Invoice Data from hasura operation: ',
           error
@@ -851,6 +853,9 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       
       const al_name = req.body.al_param1;
       const al_pass = req.body.al_param2;
+
+      const vendor_number = req.body.vendor_number;
+      const entity_org_id = req.body.entity_org_id;
 
       // const al_name = 'admin';
       // const al_pass = 'admin';
@@ -896,7 +901,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               
               if(option == 3){
-                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id)              
+                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id)              
               }
               
               result.push({
