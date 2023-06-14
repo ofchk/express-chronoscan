@@ -401,12 +401,12 @@ async function connect_oracle_staging(invoice_id, params ) {
     const invoice_items = params.data.invoice_line_items
 
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15)";
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID, LINE_NUM) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)";
 
        console.log('sql', sql)
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.vendor_number, invoice_main[0].invoice_entity.org_id];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.vendor_number, invoice_main[0].invoice_entity.org_id, invoice_items[i].line_no];    
     console.log('binds', binds)
         options = {
           autoCommit: true,
@@ -717,7 +717,7 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
   }
 }
 
-function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_date, date_of_supply, description, qty, price ) {
+function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_date, date_of_supply, slno, description, qty, price ) {
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
       headers: {
@@ -732,6 +732,7 @@ function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_
           delivery_number: "${delivery_number}",
           delivery_date: "${delivery_date}",
           date_of_supply: "${date_of_supply}",
+          line_no: "${slno}",
           description: "${description}",
           qty: "${qty}",
           price: "${price}"
@@ -766,7 +767,7 @@ app.post('/process', async (req, res) => {
     console.log(json[1])
 
     for (let i = 0; i < json[1].line_items.length; i++) {   
-      await save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
+      await save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].slno, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
 
@@ -810,6 +811,7 @@ app.post('/process', async (req, res) => {
             delivery_number
             delivery_date
             date_of_supply
+            line_no
           }
         }`,
       }),
