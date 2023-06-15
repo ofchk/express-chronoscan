@@ -844,23 +844,6 @@ app.post('/process', async (req, res) => {
   }  
 });
 
-var AlfrescoApi = require('alfresco-js-api-node');
-var alfrescoJsApi = new AlfrescoApi({
-        provider: 'ECM',
-        hostEcm: 'http://alfresco.moc.com:8080',
-      });
-
-alfrescoJsApi.login('ravi', 'ruwi1964^').then(
-        function (data) {
-          console.log(
-            'API called successfully to login into Alfresco Content Services.'
-          );
-        },
-        function (error) {
-          console.error(error);
-          res.json({ status: 400, message: 'Error in Alfresco Connection.' });
-        }
-      );
 
 app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
@@ -896,7 +879,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
         hostEcm: 'http://alfresco.moc.com:8080',
       });
 
-      alfrescoJsApi.login(al_name, al_pass).then(
+      alfrescoJsApi.login('ravi', 'ruwi1964^').then(
         function (data) {
           console.log(
             'API called successfully to login into Alfresco Content Services.'
