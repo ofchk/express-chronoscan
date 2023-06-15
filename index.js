@@ -845,6 +845,11 @@ app.post('/process', async (req, res) => {
 });
 
 var AlfrescoApi = require('alfresco-js-api-node');
+var alfrescoJsApi = new AlfrescoApi({
+        provider: 'ECM',
+        hostEcm: 'http://alfresco.moc.com:8080',
+      });
+
 alfrescoJsApi.login('ravi', 'ruwi1964^').then(
         function (data) {
           console.log(
