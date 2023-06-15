@@ -844,6 +844,17 @@ app.post('/process', async (req, res) => {
   }  
 });
 
+alfrescoJsApi.login('ravi', 'ruwi1964^').then(
+        function (data) {
+          console.log(
+            'API called successfully to login into Alfresco Content Services.'
+          );
+        },
+        function (error) {
+          console.error(error);
+          res.json({ status: 400, message: 'Error in Alfresco Connection.' });
+        }
+      );
 
 app.post('/invoice/upload', upload.single('file'), async (req, res) => {
   try {      
