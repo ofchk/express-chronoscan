@@ -844,6 +844,7 @@ app.post('/process', async (req, res) => {
   }  
 });
 
+var AlfrescoApi = require('alfresco-js-api-node');
 alfrescoJsApi.login('ravi', 'ruwi1964^').then(
         function (data) {
           console.log(
