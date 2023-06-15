@@ -879,7 +879,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
         hostEcm: 'http://alfresco.moc.com:8080',
       });
 
-      alfrescoJsApi.login('ravi', 'ruwi1964^').then(
+      alfrescoJsApi.login(al_name, al_pass).then(
         function (data) {
           console.log(
             'API called successfully to login into Alfresco Content Services.'
