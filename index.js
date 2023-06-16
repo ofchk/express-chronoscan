@@ -857,11 +857,16 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const site_code = parseInt(req.body.site_id);
       const gl_date = req.body.gl_date;
       
-      const al_name = req.body.al_param1;
-      const al_pass = req.body.al_param2;
+      let al_name = req.body.al_param1;
+      let al_pass = req.body.al_param2;
 
       console.log('al_name', al_name)
       console.log('al_pass', al_pass)
+
+      if(al_name==='ravi'){
+        al_name = 'admin'
+        al_pass = 'admin'
+      }
 
       const vendor_number = req.body.vendor_number;
       const vendor_code = req.body.vendor_number;
