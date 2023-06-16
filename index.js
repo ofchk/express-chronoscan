@@ -29,6 +29,7 @@ db.sequelize.sync();
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
 var pathTo = `${__dirname}/uploads/invoice_to_process`;
 
+console.log('dirname', __dirname)
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('pages/index.html'));
 });
