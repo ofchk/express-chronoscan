@@ -453,7 +453,7 @@ async function modifyPdf(fullPathTo, endpage, invoice_number) {
   pdfDoc.removePage(endpage-1)
   pdfDoc.removePage(0)
   
-  var fullPathToNoBarcode = path.join(pathTo, 'final_'+ invoice_number + '.pdf');
+  var fullPathToNoBarcode = path.join(pathTo,  invoice_number + '.pdf');
   const pdfBytes = await pdfDoc.save()
 
   fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
