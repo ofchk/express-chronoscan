@@ -203,9 +203,9 @@ cron.schedule('13 */6 * * *', () => {
   fetch_vendor()
 });
 
-cron.schedule('* */8 * * *', () => {
+cron.schedule('* * */8 * *', () => {
   console.log(`Cron is running to fetch entity`);
-  fetch_entity()
+  //fetch_entity()
 });
 
 function error_log_to_hasura(
