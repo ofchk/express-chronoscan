@@ -29,7 +29,7 @@ db.sequelize.sync();
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
 var pathTo = `${__dirname}/uploads`;
 
-console.log('dirname', __dirname)
+console.log('Today', new Date())
 app.get('/', (req, res) => {
   res.sendFile(path.resolve('pages/index.html'));
 });
@@ -864,7 +864,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       console.log('al_pass', al_pass)
 
       const vendor_number = req.body.vendor_number;
-      const vendor_code = req.body.vendor_code;
+      const vendor_code = req.body.vendor_number;
       const entity_org_id = req.body.entity_org_id;
 
       // const al_name = 'admin';
