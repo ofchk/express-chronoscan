@@ -27,7 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
-var pathTo = `/home/dmssupport/Workspace/`;
+var pathTo = `/mnt/windows`;
 
 console.log('dirname', __dirname)
 app.get('/', (req, res) => {
@@ -198,15 +198,15 @@ async function fetch_entity() {
   }
 }
 
-cron.schedule('13 */6 * * *', () => {
-  console.log(`Cron is running to fetch vendor`);
-  fetch_vendor()
-});
+// cron.schedule('13 */6 * * *', () => {
+//   console.log(`Cron is running to fetch vendor`);
+//   fetch_vendor()
+// });
 
-cron.schedule('* * */8 * *', () => {
-  console.log(`Cron is running to fetch entity`);
-  //fetch_entity()
-});
+// cron.schedule('* * */8 * *', () => {
+//   console.log(`Cron is running to fetch entity`);
+//   fetch_entity()
+// });
 
 function error_log_to_hasura(
   invoice_id,  
