@@ -27,7 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
-var pathTo = `/home/dmssupport/Workspace/express-chronoscan/`;
+var pathTo = `/home/dmssupport/Workspace/`;
 
 console.log('dirname', __dirname)
 app.get('/', (req, res) => {
