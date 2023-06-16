@@ -27,7 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
-var pathTo = `/home`;
+var pathTo = `${__dirname}`;
 
 console.log('dirname', __dirname)
 app.get('/', (req, res) => {
