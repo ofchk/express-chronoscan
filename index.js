@@ -198,12 +198,12 @@ async function fetch_entity() {
   }
 }
 
-cron.schedule('* 13 */6 * * *', () => {
+cron.schedule('* * 5 * * *', () => {
   console.log(`Cron is running to fetch vendor`);
   fetch_vendor()
 });
 
-cron.schedule('* 0 */8 * * *', () => {
+cron.schedule('* * 6 * * *', () => {
   console.log(`Cron is running to fetch entity`);
   fetch_entity()
 });
@@ -443,7 +443,7 @@ async function connect_oracle_staging(invoice_id, params ) {
 
 
 
-async function modifyPdf(fullPathTo, endpage, invoice_number) {  
+async function modifyPdf(fullPathTo, endpage, invoice_number, invoice_id) {  
   const { PDFDocument } = require('pdf-lib');
   const pdfData = await fs.readFile(fullPathTo);
   const pdfDoc = await PDFDocument.load(pdfData);
@@ -453,14 +453,14 @@ async function modifyPdf(fullPathTo, endpage, invoice_number) {
   pdfDoc.removePage(endpage-1)
   pdfDoc.removePage(0)
   
-  var fullPathToNoBarcode = path.join(pathTo,  invoice_number + '.pdf');
+  var fullPathToNoBarcode = path.join(pathTo,  invoice_id + '_' +invoice_number + '.pdf');
   const pdfBytes = await pdfDoc.save()
 
   fs.writeFileSync(fullPathToNoBarcode,  pdfBytes);
 }
 
 
-async function doc_dicer(invoice_number, itemPath) {
+async function doc_dicer(invoice_id,invoice_number, itemPath) {
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -479,7 +479,7 @@ async function doc_dicer(invoice_number, itemPath) {
         // merger.add(fullPathTo)
         await fs.writeFile(fullPathTo, buffer);
         if(count === 2){
-          modifyPdf(fullPathTo, data.pages, invoice_number)
+          modifyPdf(fullPathTo, data.pages, invoice_number, invoice_id)
         }
 
         console.log(data)
@@ -771,6 +771,7 @@ app.post('/process', async (req, res) => {
       await save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].slno, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
+    let invoice_number = json[0].invoice.split("_")
 
 //####### Get Invoice Full data from Hasura
 
@@ -782,7 +783,7 @@ app.post('/process', async (req, res) => {
       },
       body: JSON.stringify({
         query: `query{ 
-          invoice(where: {invoice_number: {_eq: "${json[0].invoice}"}}) {
+          invoice(where: {invoice_number: {_eq: "${invoice_number}"}}) {
             id
             invoice_number
             invoice_amount
@@ -952,7 +953,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
           );
 
           if(option != 3){
-            doc_dicer(invoice_number, req.file.path)
+            doc_dicer(invoice_id, invoice_number, req.file.path)
           }
       res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
