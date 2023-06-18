@@ -752,7 +752,7 @@ function save_invoice_line_item( invoice_number, LPO, delivery_number, delivery_
           
       })
       .catch((error) => {
-        error_log_to_hasura(invoice_id, "Adding Invoice Line Item to File Controller App has been failed.");
+        error_log_to_hasura(invoice_number, "Adding Invoice Line Item to File Controller App has been failed.");
         console.log(
           'There has been a problem with your Adding Invoice Line Item operation: ',
           error
