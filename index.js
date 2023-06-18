@@ -763,7 +763,7 @@ function save_invoice_line_item( invoice_id, invoice_number, LPO, delivery_numbe
     })
       .then((res) => res.json())
       .then((res) => {
-        console.log('res',res)
+        //console.log('res',res)
         console.log(
           `Adding Invoice Line Item added to hasura`
         );            
