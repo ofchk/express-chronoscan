@@ -769,6 +769,7 @@ app.post('/process', async (req, res) => {
 
     let invoice_arr = json[0].invoice.split("_")
 
+    console.log('invoice_id', invoice_arr)
     console.log('invoice_id', invoice_arr[0])
     console.log('invoice_number', invoice_arr[1])
 
