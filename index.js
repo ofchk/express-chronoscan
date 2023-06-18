@@ -198,15 +198,15 @@ async function fetch_entity() {
   }
 }
 
-cron.schedule('* * 5 * * *', () => {
-  console.log(`Cron is running to fetch vendor`);
-  fetch_vendor()
-});
+// cron.schedule('* * 5 * * *', () => {
+//   console.log(`Cron is running to fetch vendor`);
+//   fetch_vendor()
+// });
 
-cron.schedule('* * 6 * * *', () => {
-  console.log(`Cron is running to fetch entity`);
-  fetch_entity()
-});
+// cron.schedule('* * 6 * * *', () => {
+//   console.log(`Cron is running to fetch entity`);
+//   fetch_entity()
+// });
 
 function error_log_to_hasura(
   invoice_id,  
@@ -771,7 +771,7 @@ app.post('/process', async (req, res) => {
       await save_invoice_line_item(json[0].invoice, json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].slno, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
-    let invoice_number = json[0].invoice.split("_")
+    let invoice_arr = json[0].invoice.split("_")
 
 //####### Get Invoice Full data from Hasura
 
@@ -783,7 +783,7 @@ app.post('/process', async (req, res) => {
       },
       body: JSON.stringify({
         query: `query{ 
-          invoice(where: {invoice_number: {_eq: "${invoice_number}"}}) {
+          invoice(where: {id: {_eq: "${invoice_arr[0]}"}}) {
             id
             invoice_number
             invoice_amount
