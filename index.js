@@ -720,7 +720,6 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
 
 function save_invoice_line_item( invoice_id, invoice_number, LPO, delivery_number, delivery_date, date_of_supply, slno, description, qty, price ) {
 
-console.log(`insert_invoice_line_items_one(object: {invoice_id: "${invoice_id}", invoice_number: "${invoice_number}", LPO: "${LPO}",delivery_number: "${delivery_number}",delivery_date: "${delivery_date}",date_of_supply: "${date_of_supply}",line_no: "${slno}",description: "${description}",qty: "${qty}",price: "${price}"}) {id}`)
   
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
@@ -778,7 +777,7 @@ app.post('/process', async (req, res) => {
     console.log('invoice_number', invoice_arr[1])
 
     for (let i = 0; i < json[1].line_items.length; i++) {   
-      await save_invoice_line_item(save_invoice_line_item,invoice_arr[1], json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].slno, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
+      await save_invoice_line_item(invoice_arr[0],invoice_arr[1], json[0].LPO, json[0].d_number, json[0].d_date, json[0].date_supply, json[1].line_items[i].slno, json[1].line_items[i].item, json[1].line_items[i].qty, json[1].line_items[i].rate)
     }
 
     
