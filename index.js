@@ -719,6 +719,23 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
 }
 
 function save_invoice_line_item( invoice_id, invoice_number, LPO, delivery_number, delivery_date, date_of_supply, slno, description, qty, price ) {
+
+  console.log(`mutation{ insert_invoice_line_items_one(object: 
+        {
+          invoice_id: "${invoice_id}", 
+          invoice_number: "${invoice_number}", 
+          LPO: "${LPO}",
+          delivery_number: "${delivery_number}",
+          delivery_date: "${delivery_date}",
+          date_of_supply: "${date_of_supply}",
+          line_no: "${slno}",
+          description: "${description}",
+          qty: "${qty}",
+          price: "${price}"
+        }) {
+          id
+          
+        }}`)
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
       headers: {
