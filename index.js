@@ -27,6 +27,7 @@ const Role = db.role;
 db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
+var pathTemp = `${__dirname}/uploads/invoice_to_process`; // Or wherever your files-to-process live
 var pathTo = `/mnt/windows2`;
 
 console.log('Today', new Date())
@@ -476,7 +477,7 @@ async function doc_dicer(invoice_id,invoice_number, itemPath) {
       let count = 1
       await dicer.on('split', async (data, buffer) => {
         console.log('count',count)        
-        var fullPathTo = path.join(pathTo, count+invoice_number + '.pdf');
+        var fullPathTo = path.join(pathTemp, count+invoice_number + '.pdf');
         console.log('fullPathTo',fullPathTo)        
         // merger.add(fullPathTo)
         await fs.writeFile(fullPathTo, buffer);
