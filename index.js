@@ -974,7 +974,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       var result = [];
         var fileToUpload = fs.createReadStream(req.file.path);
         await alfrescoJsApi.upload
-          .uploadFile(fileToUpload, '/Sites/AccountsPayable/documentLibrary/' + invoice_number)
+          .uploadFile(fileToUpload, '/Sites/AccountsPayable/documentLibrary/' + invoice_id + '_' + invoice_number)
 
           .then(
             function (response) {
