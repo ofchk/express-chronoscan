@@ -389,7 +389,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
   }
 }
 
-async function connect_oracle_staging(invoice_id, params ) {
+async function connect_oracle_staging_header_only(invoice_id, params ) {
   console.log(invoice_id)
   let connection;
 
@@ -402,15 +402,15 @@ async function connect_oracle_staging(invoice_id, params ) {
     const invoice_main = params.data.invoice
     const invoice_items = params.data.invoice_line_items
 
+    console.log('line_items_length',params.data.invoice_line_items.length)
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17,:18)";
+      console.log('i',i)
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, VENDOR_ID, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14)";
 
-       console.log('sql', sql)
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.vendor_number, invoice_main[0].invoice_entity.org_id,invoice_items[i].line_no, invoice_main[0].invoice_vendor.vendor_number,invoice_main[0].invoice_currency.title ];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_main[0].invoice_vendor.supplier_number, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
         
-        console.log('binds', binds)
 
         options = {
           autoCommit: true,
@@ -422,7 +422,59 @@ async function connect_oracle_staging(invoice_id, params ) {
                     binds,
                     options);
         console.log("Inserted Row ID:", result.lastRowid);
-        save_staging(invoice_id, result.lastRowid)
+        await save_staging(invoice_id, result.lastRowid)
+  }  
+   
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+
+async function connect_oracle_staging_header_line_items(invoice_id, params ) {
+  console.log(invoice_id)
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+    const invoice_main = params.data.invoice
+    const invoice_items = params.data.invoice_line_items
+
+    console.log('line_items_length',params.data.invoice_line_items.length)
+  for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
+      console.log('i',i)
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17,:18)";
+
+       const qty = parseFloat(invoice_items[i].qty) || 0
+       const price = parseFloat(invoice_items[i].price) || 0
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.supplier_number, invoice_main[0].invoice_entity.org_id,invoice_items[i].line_no, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+        
+
+        options = {
+          autoCommit: true,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,      
+        };
+
+        result = await connection.execute(
+                    sql,
+                    binds,
+                    options);
+        console.log("Inserted Row ID:", result.lastRowid);
+        await save_staging(invoice_id, result.lastRowid)
   }  
    
 
@@ -800,6 +852,7 @@ app.post('/process', async (req, res) => {
             invoice_number
             invoice_amount
             gl_date
+            option
             invoice_currency{
               title
             }
@@ -838,7 +891,13 @@ app.post('/process', async (req, res) => {
           `Fetch Invoice Data from hasura successfully`
         );    
 
-        const oracle =  connect_oracle_staging(res.data.invoice[0].id,res)        
+        if(res.data.invoice[0].option == 2){
+          const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res)  
+        }
+        else if(res.data.invoice[0].option == 1){
+          const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res)  
+        }
+                
           
       })
       .catch((error) => {
