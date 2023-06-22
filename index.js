@@ -275,6 +275,7 @@ function save_oracle_identifier(
 
 async function get_oracle_identifier( invoice_id, rowid, task ) {
   let connection;
+  console.log('get_oracle_identifier function is running')
   try {
     let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
@@ -305,6 +306,7 @@ async function get_oracle_identifier( invoice_id, rowid, task ) {
 function save_staging(
   invoice_id, staging_id
 ) {
+    console.log('save_staging function is running')
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
       headers: {
@@ -328,7 +330,7 @@ function save_staging(
         
   ////// #### cron
         var task = cron.schedule('*/15 * * * * *', () => {
-          console.log(`Cron is running."${invoice_id}" - "${new Date()}"`);
+          console.log(`Cron is running to get oracle identifier."${invoice_id}" - "${new Date()}"`);
           const res = get_oracle_identifier(invoice_id, staging_id, task)
         });
 
@@ -349,7 +351,7 @@ function save_staging(
 
 
 async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code) {
-  console.log(invoice_id)
+  console.log('connect_oracle_staging_only_storage function is running')
   let connection;
 
   try {
@@ -390,7 +392,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
 }
 
 async function connect_oracle_staging_header_only(invoice_id, params ) {
-  console.log(invoice_id)
+  console.log('connect_oracle_staging_header_only function is running')
   let connection;
 
   try {
@@ -442,7 +444,7 @@ async function connect_oracle_staging_header_only(invoice_id, params ) {
 
 
 async function connect_oracle_staging_header_line_items(invoice_id, params ) {
-  console.log(invoice_id)
+  console.log('connect_oracle_staging_header_line_items function is running')
   let connection;
 
   try {
@@ -495,10 +497,8 @@ async function connect_oracle_staging_header_line_items(invoice_id, params ) {
 // result2 = await connection.execute('select * from  "XXMO_DMS"."XXMO_DMS_AP_INVOICE_STG_T"')
 // console.log("Fetch: ", result2.rows)
 
-
-
-
 async function modifyPdf(fullPathTo, endpage, invoice_number, invoice_id) {  
+  console.log('modifyPdf function is running')
   const { PDFDocument } = require('pdf-lib');
   const pdfData = await fs.readFile(fullPathTo);
   const pdfDoc = await PDFDocument.load(pdfData);
@@ -516,6 +516,7 @@ async function modifyPdf(fullPathTo, endpage, invoice_number, invoice_id) {
 
 
 async function doc_dicer(invoice_id,invoice_number, itemPath) {
+  console.log('doc_dicer function is running')
   try {            
       // console.log(itemPath) 
       var pdfDicer = require('pdf-dicer');      
@@ -672,6 +673,7 @@ app.post('/user/login', async (req, res) => {
 
 async function connect_oracle_staging_from_chronoscan( invoice_number, lpo, d_number, d_date ) {
   let connection;
+  console.log('connect_oracle_staging_from_chronoscan function is running')
   try {
 
     let sql, binds, options, result;
@@ -722,7 +724,7 @@ async function connect_oracle_staging_from_chronoscan( invoice_number, lpo, d_nu
 }
 
 async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate, gross, vat ) {
-
+  console.log('connect_oracle_staging_item_list function is running')
   let connection;
 
   try {
@@ -775,7 +777,7 @@ async function connect_oracle_staging_item_list( invoice, item, unit, qty, rate,
 
 function save_invoice_line_item( invoice_id, invoice_number, LPO, delivery_number, delivery_date, date_of_supply, slno, description, qty, price ) {
 
-  
+    console.log('save_invoice_line_item function is running')
     fetch("http://192.168.5.130:8080/v1/graphql", {
       method: 'POST',
       headers: {
@@ -819,6 +821,7 @@ function save_invoice_line_item( invoice_id, invoice_number, LPO, delivery_numbe
   }
 
 app.post('/process', async (req, res) => {
+  console.log('api /process is running')
   try {      
     const json = req.body
     console.log('req',req.body)
