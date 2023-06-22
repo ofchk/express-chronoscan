@@ -358,11 +358,11 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
 
-    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, VENDOR_ID, ORG_ID, VENDOR_CODE,LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, ORG_ID, VENDOR_CODE,LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12)";
 
     console.log('sql', sql)
 
-    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, vendor_number, entity_org_id, vendor_code, currency ];    
+    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency ];    
       options = {
         autoCommit: true,
         outFormat: oracledb.OUT_FORMAT_OBJECT,      
@@ -405,11 +405,11 @@ async function connect_oracle_staging_header_only(invoice_id, params ) {
     console.log('line_items_length',params.data.invoice_line_items.length)
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
       console.log('i',i)
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, VENDOR_ID, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14)";
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_main[0].invoice_vendor.supplier_number, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
         
 
         options = {
@@ -457,11 +457,11 @@ async function connect_oracle_staging_header_line_items(invoice_id, params ) {
     console.log('line_items_length',params.data.invoice_line_items.length)
   for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
       console.log('i',i)
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, VENDOR_ID, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17,:18)";
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
 
        const qty = parseFloat(invoice_items[i].qty) || 0
        const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_vendor.supplier_number, invoice_main[0].invoice_entity.org_id,invoice_items[i].line_no, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_entity.org_id,invoice_items[i].line_no, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
         
 
         options = {
