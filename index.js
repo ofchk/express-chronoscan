@@ -975,7 +975,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
       var fs = require('fs');
       var result = [];
-        var fileToUpload = fs.createReadStream(req.file.path);
+      var fileToUpload = fs.createReadStream(req.file.path);
         await alfrescoJsApi.upload
           .uploadFile(fileToUpload, '/Sites/AccountsPayable/documentLibrary/' + invoice_id + '_' + invoice_number)
 
@@ -1029,13 +1029,14 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
           if(option != 3){
             //doc_dicer(invoice_id, invoice_number, req.file.path)
-
+            console.log(fileToUpload)
+            console.log(pathTo+invoice_id + '_' +invoice_number + '.pdf')
             fs.copyFile(fileToUpload, pathTo+invoice_id + '_' +invoice_number + '.pdf', (err) => {
                 if (err) 
                     throw err;
                 console.log(fileToUpload+' was copied to ' + pathTo+invoice_id + '_' +invoice_number + '.pdf');
             });
-                        
+
           }
       res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
