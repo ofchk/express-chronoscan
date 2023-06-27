@@ -1028,7 +1028,14 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
           );
 
           if(option != 3){
-            doc_dicer(invoice_id, invoice_number, req.file.path)
+            //doc_dicer(invoice_id, invoice_number, req.file.path)
+
+            fs.copyFile(fileToUpload, pathTo+invoice_id + '_' +invoice_number + '.pdf', (err) => {
+                if (err) 
+                    throw err;
+                console.log(fileToUpload+' was copied to ' + pathTo+invoice_id + '_' +invoice_number + '.pdf');
+            });
+                        
           }
       res.json({ 'status': 200, mesaage: 'File upload is completed.' });
   } catch (err) {    
