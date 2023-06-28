@@ -28,7 +28,7 @@ db.sequelize.sync();
 
 var pathFrom = `${__dirname}/uploads`; // Or wherever your files-to-process live
 var pathTemp = `${__dirname}/uploads/invoice_to_process`; // Or wherever your files-to-process live
-var pathTo = `/mnt/windows2`;
+var pathTo = `/mnt/windows2/`;
 
 console.log('Today', new Date())
 app.get('/', (req, res) => {
@@ -1029,9 +1029,9 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
           if(option != 3){
             //doc_dicer(invoice_id, invoice_number, req.file.path)
-            console.log(fileToUpload)
+            console.log(req.file.path)
             console.log(pathTo+invoice_id + '_' +invoice_number + '.pdf')
-            fs.copyFile(fileToUpload, pathTo+invoice_id + '_' +invoice_number + '.pdf', (err) => {
+            fs.copyFile(req.file.path, pathTo+invoice_id + '_' +invoice_number + '.pdf', (err) => {
                 if (err) 
                     throw err;
                 console.log(fileToUpload+' was copied to ' + pathTo+invoice_id + '_' +invoice_number + '.pdf');
