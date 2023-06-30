@@ -391,7 +391,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
   }
 }
 
-async function connect_oracle_staging_header_only(invoice_id, params ) {
+async function connect_oracle_staging_header_only(invoice_id, params, header_array ) {
   console.log('connect_oracle_staging_header_only function is running')
   let connection;
 
@@ -402,31 +402,27 @@ async function connect_oracle_staging_header_only(invoice_id, params ) {
     console.log("connection");
 
     const invoice_main = params.data.invoice
-    const invoice_items = params.data.invoice_line_items
 
-    console.log('line_items_length',params.data.invoice_line_items.length)
-  for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
-      console.log('i',i)
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
+    console.log('i',i)
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
-       const qty = parseFloat(invoice_items[i].qty) || 0
-       const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
-        
+     const qty = parseFloat(invoice_items[i].qty) || 0
+     const price = parseFloat(invoice_items[i].price) || 0
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      
 
-        options = {
-          autoCommit: true,
-          outFormat: oracledb.OUT_FORMAT_OBJECT,      
-        };
+      options = {
+        autoCommit: true,
+        outFormat: oracledb.OUT_FORMAT_OBJECT,      
+      };
 
-        result = await connection.execute(
-                    sql,
-                    binds,
-                    options);
-        console.log("Inserted Row ID:", result.lastRowid);
-        await save_staging(invoice_id, result.lastRowid)
-  }  
-   
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      await save_staging(invoice_id, result.lastRowid)
+ 
 
   } catch (err) {
     error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
@@ -443,7 +439,7 @@ async function connect_oracle_staging_header_only(invoice_id, params ) {
 }
 
 
-async function connect_oracle_staging_header_line_items(invoice_id, params ) {
+async function connect_oracle_staging_header_line_items(invoice_id, params, header_array, line_items_array ) {
   console.log('connect_oracle_staging_header_line_items function is running')
   let connection;
 
@@ -454,29 +450,29 @@ async function connect_oracle_staging_header_line_items(invoice_id, params ) {
     console.log("connection");
 
     const invoice_main = params.data.invoice
-    const invoice_items = params.data.invoice_line_items
 
-    console.log('line_items_length',params.data.invoice_line_items.length)
-  for (let i = 0; i < params.data.invoice_line_items.length; i++) {  
-      console.log('i',i)
-      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
+    console.log('line_items_length',line_items_array.line_items.length)
+  for (let i = 0; i < line_items_array.line_items.length; i++) {  
+      
+    console.log('i',i)
 
-       const qty = parseFloat(invoice_items[i].qty) || 0
-       const price = parseFloat(invoice_items[i].price) || 0
-        binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, invoice_items[i].LPO, invoice_items[i].description, qty, price, invoice_main[0].invoice_entity.org_id,invoice_items[i].line_no, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
-        
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, QUANTITY, UNIT_SELLING_PRICE, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
 
-        options = {
-          autoCommit: true,
-          outFormat: oracledb.OUT_FORMAT_OBJECT,      
-        };
+     const qty = parseFloat(line_items_array.line_items[i].qty) || 0
+     const price = parseFloat(line_items_array.line_items[i].rate) || 0
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, line_items_array.line_items[i].item, qty, price, invoice_main[0].invoice_entity.org_id,line_items_array.line_items[i].slno,, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      
+      options = {
+        autoCommit: true,
+        outFormat: oracledb.OUT_FORMAT_OBJECT,      
+      };
 
-        result = await connection.execute(
-                    sql,
-                    binds,
-                    options);
-        console.log("Inserted Row ID:", result.lastRowid);
-        await save_staging(invoice_id, result.lastRowid)
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      await save_staging(invoice_id, result.lastRowid)
   }  
    
 
@@ -829,6 +825,9 @@ app.post('/process', async (req, res) => {
     console.log(json[1])
 
     let invoice_arr = json[0].invoice.split("_")
+    const header_array = json[0]
+    const line_items_array = json[1]
+
 
     console.log('invoice_id', invoice_arr)
     console.log('invoice_id', invoice_arr[0])
@@ -839,7 +838,6 @@ app.post('/process', async (req, res) => {
     }
 
     
-
 //####### Get Invoice Full data from Hasura
 
     fetch("http://192.168.5.130:8080/v1/graphql", {
@@ -895,10 +893,10 @@ app.post('/process', async (req, res) => {
         );    
 
         if(res.data.invoice[0].option == 2){
-          const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res)  
+          const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res, header_array, line_items_array)  
         }
         else if(res.data.invoice[0].option == 1){
-          const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res)  
+          const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res, header_array)  
         }
                 
           
@@ -1029,12 +1027,10 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
 
           if(option != 3){
             //doc_dicer(invoice_id, invoice_number, req.file.path)
-            console.log(req.file.path)
-            console.log(pathTo+invoice_id + '_' +invoice_number + '.pdf')
             fs.copyFile(req.file.path, pathTo+invoice_id + '_' +invoice_number + '.pdf', (err) => {
                 if (err) 
                     throw err;
-                console.log(fileToUpload+' was copied to ' + pathTo+invoice_id + '_' +invoice_number + '.pdf');
+                console.log(req.file.path+' was copied to ' + pathTo+invoice_id + '_' +invoice_number + '.pdf');
             });
 
           }
