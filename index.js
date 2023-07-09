@@ -406,8 +406,6 @@ async function connect_oracle_staging_header_only(invoice_id, params, header_arr
     sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, ORG_ID, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13)";
 
     binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
-      
-
     options = {
       autoCommit: true,
       outFormat: oracledb.OUT_FORMAT_OBJECT,      
@@ -472,6 +470,70 @@ async function connect_oracle_staging_header_line_items(invoice_id, params, head
       await save_staging(invoice_id, result.lastRowid)
   }  
    
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+async function connect_oracle_staging_header_descripton_tax(invoice_id, params, header_array, line_items_array ) {
+  console.log('connect_oracle_staging_header_descripton_tax function is running')
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+    const invoice_main = params.data.invoice
+
+
+////// DESCRIPTION      
+
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, DESCRIPTION, TAX_AMOUNT, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
+
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, invoice_main[0].tax, invoice_main[0].invoice_entity.org_id,line_items_array.line_items[i].slno, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      
+      options = {
+        autoCommit: true,
+        outFormat: oracledb.OUT_FORMAT_OBJECT,      
+      };
+
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      await save_staging(invoice_id, result.lastRowid)
+
+
+////// TAX      
+
+     sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, DESCRIPTION, ORG_ID, LINE_NUM, VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)";
+
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, invoice_main[0].invoice_entity.org_id,line_items_array.line_items[i].slno, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      
+      options = {
+        autoCommit: true,
+        outFormat: oracledb.OUT_FORMAT_OBJECT,      
+      };
+
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      await save_staging(invoice_id, result.lastRowid)  
 
   } catch (err) {
     error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
@@ -851,6 +913,8 @@ app.post('/process', async (req, res) => {
             invoice_amount
             gl_date
             option
+            description
+            tax
             invoice_currency{
               title
             }
@@ -890,13 +954,13 @@ app.post('/process', async (req, res) => {
         );    
 
         if(res.data.invoice[0].option == 2){
-          const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res, header_array, line_items_array)  
+          // const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res, header_array, line_items_array)  
+          const oracle =  connect_oracle_staging_header_descripton_tax(res.data.invoice[0].id,res, header_array)  
+          
         }
         else if(res.data.invoice[0].option == 1){
           const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res, header_array)  
         }
-                
-          
       })
       .catch((error) => {
         // error_log_to_hasura(invoice_id, "Fetch Invoice Data from hasura has been failed.");
@@ -927,6 +991,8 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
       const currency = req.body.currency;
       const site_code = parseInt(req.body.site_id);
       const gl_date = req.body.gl_date;
+      const description = req.body.description;
+      const tax = req.body.tax;
       
       let al_name = req.body.al_param1;
       let al_pass = req.body.al_param2;
@@ -987,7 +1053,7 @@ app.post('/invoice/upload', upload.single('file'), async (req, res) => {
               console.log(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date);
               
               if(option == 3){
-                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code)              
+                connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code, description, tax)              
               }
               
               result.push({
