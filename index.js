@@ -365,7 +365,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
 
       console.log('sql', sql)
 
-      binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency, description, description, 'SR-VAT', 5 ];    
+      binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency, description, description, "SR-VAT", "5" ];    
         options = {
           autoCommit: true,
           outFormat: oracledb.OUT_FORMAT_OBJECT,      
@@ -514,7 +514,7 @@ async function connect_oracle_staging_header_descripton_tax(invoice_id, params, 
 
     sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, DESCRIPTION, TAX, TAX_RATE_CODE, ORG_ID,  VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
 
-      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, 5, 'SR-VAT', invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, "5", "SR-VAT", invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
       
       options = {
         autoCommit: true,
