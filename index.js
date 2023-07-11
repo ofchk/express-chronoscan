@@ -381,7 +381,7 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
           outFormat: oracledb.OUT_FORMAT_OBJECT,      
         };
     }
-        
+
       result = await connection.execute(
                   sql,
                   binds,
@@ -991,7 +991,7 @@ app.post('/process', async (req, res) => {
           `Fetch Invoice Data from hasura successfully`
         );  
 
-          if(res.data.invoice[0].tax == 'yes'){
+          if(res.data.invoice[0].tax === 'yes'){
             const oracle =  connect_oracle_staging_header_descripton_tax(res.data.invoice[0].id,res, header_array)  
           }else{
             const oracle =  connect_oracle_staging_header_descripton_only(res.data.invoice[0].id,res, header_array)  
