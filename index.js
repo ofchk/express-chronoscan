@@ -350,7 +350,7 @@ function save_staging(
   }
 
 
-async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code) {
+async function connect_oracle_staging_only_storage(invoice_number, vendor_name, site_code, currency, entity_name, amount, gl_date, contentUrl, invoice_id, vendor_number, entity_org_id, vendor_code, description, tax) {
   console.log('connect_oracle_staging_only_storage function is running')
   let connection;
 
@@ -360,16 +360,28 @@ async function connect_oracle_staging_only_storage(invoice_number, vendor_name, 
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
 
-    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, ORG_ID, VENDOR_CODE,LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12)";
+    if(tax === 'yes'){
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, ORG_ID, VENDOR_CODE,LINE_CURRENCY, DESCRIPTION, LINE_DESCRIPTION, TAX_RATE_CODE, TAX) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)";
 
-    console.log('sql', sql)
+      console.log('sql', sql)
 
-    binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency ];    
-      options = {
-        autoCommit: true,
-        outFormat: oracledb.OUT_FORMAT_OBJECT,      
-      };
+      binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency, description, description, 'SR-VAT', 5 ];    
+        options = {
+          autoCommit: true,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,      
+        };
+    }else{
+      sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, ORG_ID, VENDOR_CODE,LINE_CURRENCY, DESCRIPTION, LINE_DESCRIPTION) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14)";
 
+      console.log('sql', sql)
+
+      binds = [invoice_number, vendor_name, site_code, currency, entity_name, amount, new Date(gl_date), new Date(gl_date), contentUrl, entity_org_id, vendor_code, currency,description,description ];    
+        options = {
+          autoCommit: true,
+          outFormat: oracledb.OUT_FORMAT_OBJECT,      
+        };
+    }
+        
       result = await connection.execute(
                   sql,
                   binds,
@@ -491,7 +503,7 @@ async function connect_oracle_staging_header_descripton_tax(invoice_id, params, 
 
   try {
 
-    let sql, binds, options, result, sql1, binds1, options1, result1;
+    let sql, binds, options, result;
     connection = await oracledb.getConnection(dbConfig);
     console.log("connection");
 
@@ -500,21 +512,47 @@ async function connect_oracle_staging_header_descripton_tax(invoice_id, params, 
 
 ////// DESCRIPTION      
 
-    sql1 = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, DESCRIPTION, TAX_AMOUNT, ORG_ID,  VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16)";
+    sql = "INSERT INTO XXMO_DMS_AP_INVOICE_STG_T (INVOICE_NUM, VENDOR_NAME, VENDOR_SITE_ID, HEADER_CURRENCY, OPERATING_UNIT, ENTERED_AMOUNT, GL_DATE, INVOICE_DATE, ATTRIBUTE9, PO_NUMBER, LINE_DESCRIPTION, DESCRIPTION, TAX, TAX_RATE_CODE, ORG_ID,  VENDOR_CODE, LINE_CURRENCY) VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17)";
 
-      binds1 = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, invoice_main[0].tax, invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
+      binds = [invoice_main[0].invoice_number, invoice_main[0].invoice_vendor.supplier_name, invoice_main[0].invoice_vendor.site_code, invoice_main[0].invoice_currency.title, invoice_main[0].invoice_entity.title, parseFloat(invoice_main[0].invoice_amount), new Date(invoice_main[0].gl_date), new Date(invoice_main[0].gl_date), invoice_main[0].invoice_files[0].alfresco_url, header_array.LPO, invoice_main[0].description, invoice_main[0].description, 5, 'SR-VAT', invoice_main[0].invoice_entity.org_id, invoice_main[0].invoice_vendor.supplier_number,invoice_main[0].invoice_currency.title ];    
       
-      options1 = {
+      options = {
         autoCommit: true,
         outFormat: oracledb.OUT_FORMAT_OBJECT,      
       };
 
-      result1 = await connection.execute(
-                  sql1,
-                  binds1,
-                  options1);
-      console.log("Inserted Row ID:", result1.lastRowid);
-      await save_staging(invoice_id, result1.lastRowid)
+      result = await connection.execute(
+                  sql,
+                  binds,
+                  options);
+      console.log("Inserted Row ID:", result.lastRowid);
+      await save_staging(invoice_id, result.lastRowid) 
+
+  } catch (err) {
+    error_log_to_hasura(invoice_id, "Adding invoice data to Staging table has been failed.");
+    console.error(err);
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+}
+
+async function connect_oracle_staging_header_descripton_only(invoice_id, params, header_array, line_items_array ) {
+  console.log('connect_oracle_staging_header_descripton_only function is running')
+  let connection;
+
+  try {
+
+    let sql, binds, options, result;
+    connection = await oracledb.getConnection(dbConfig);
+    console.log("connection");
+
+    const invoice_main = params.data.invoice
 
 
 ////// TAX      
@@ -951,16 +989,22 @@ app.post('/process', async (req, res) => {
         console.log('res',res)
         console.log(
           `Fetch Invoice Data from hasura successfully`
-        );    
+        );  
 
-        if(res.data.invoice[0].option == 2){
-          // const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res, header_array, line_items_array)  
-          const oracle =  connect_oracle_staging_header_descripton_tax(res.data.invoice[0].id,res, header_array)  
+          if(res.data.invoice[0].tax == 'yes'){
+            const oracle =  connect_oracle_staging_header_descripton_tax(res.data.invoice[0].id,res, header_array)  
+          }else{
+            const oracle =  connect_oracle_staging_header_descripton_only(res.data.invoice[0].id,res, header_array)  
+          }
+
+        // if(res.data.invoice[0].option == 2){
+        //   // const oracle =  connect_oracle_staging_header_line_items(res.data.invoice[0].id,res, header_array, line_items_array)  
+        //   const oracle =  connect_oracle_staging_header_descripton_tax(res.data.invoice[0].id,res, header_array)  
           
-        }
-        else if(res.data.invoice[0].option == 1){
-          const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res, header_array)  
-        }
+        // }
+        // else if(res.data.invoice[0].option == 1){
+        //   const oracle =  connect_oracle_staging_header_only(res.data.invoice[0].id,res, header_array)  
+        // }
       })
       .catch((error) => {
         // error_log_to_hasura(invoice_id, "Fetch Invoice Data from hasura has been failed.");
